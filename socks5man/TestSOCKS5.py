@@ -1,20 +1,20 @@
+import logging
 import socket
 import socks
 import urllib2
 
 class TestSOCKS5:
     def __init__(self, ip, port, username="", password=""):
-        self.ip                      = ip
-        self.port                    = port
-        self.username                = username
-        self.password                = password
+        self.ip          = ip
+        self.port        = port
+        self.username    = username
+        self.password    = password
 
-        self.test_url                = "https://api.ipify.org/"
+        self.test_url    = "https://api.ipify.org/"
 
-        self.min_success_connections = 5
-        self.test_passed             = False
+        self.test_passed = False
     
-    def test(self):
+    def test(self, test_times=1):
         '''Sends HTTPS request to ipify API through the specified
         SOCKS5 server and matches if the response matches the SOCKS5 IP'''
         
@@ -32,10 +32,10 @@ class TestSOCKS5:
                     times_connected += 1
 
         except Exception as e:
-            print("Error: %s" % e)
+            logging.error("Error: %s", e)
             return False
         
-        if times_connected ==  self.min_success_connections:
+        if times_connected ==  test_times:
             self.test_passed = True
             return True
         else:
