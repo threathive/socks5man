@@ -3,6 +3,20 @@ import sqlite3
 
 from socks5man.socks5 import SOCKS5Server
 
+_init_sql = """
+CREATE TABLE IF NOT EXISTS server (
+    server_id TEXT PRIMARY KEY NOT NULL,
+    ip TEXT NOT NULL,
+    port INT NOT NULL,
+    username TEXT,
+    password TEXT,
+    country TEXT,
+    last_checked INT NOT NULL,
+    last_used INT NOT NULL,
+    active INT NOT NULL
+)
+"""
+
 class DbManager(object):
     def __init__(self):
         self.db_name = "socks5man.sqlite"
@@ -28,9 +42,8 @@ class DbManager(object):
     def create_tables_if_not_existing(self):
         self.open_connection()
 
-        with open("socks5man/server.sql", "r") as fp:
-            self.cursor.execute(fp.read())
-            self.conn.commit()
+        self.cursor.execute(_init_sql)
+        self.conn.commit()
 
         self.close_connection()
 
