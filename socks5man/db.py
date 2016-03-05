@@ -1,7 +1,7 @@
 import logging
 import sqlite3
 
-from socks5man.SOCKS5Server import SOCKS5Server
+from socks5man.socks5 import SOCKS5Server
 
 class DbManager(object):
     def __init__(self):

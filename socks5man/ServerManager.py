@@ -1,4 +1,4 @@
-from socks5man.DbManager import DbManager
+from socks5man.db import DbManager
 
 class ServerManager(object):
     def __init__(self):

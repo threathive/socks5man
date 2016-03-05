@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
-import json
+import socks5man.api
 
-from socks5man import Api
-from socks5man.DbManager import DbManager
-from socks5man.Logger import Logger
+from socks5man.db import DbManager
+from socks5man.logger import Logger
 
 Logger().setup_logger()
 DbManager().create_tables_if_not_existing()
 
-Api.start_api()
+socks5man.api.start_api()
