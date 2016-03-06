@@ -27,14 +27,14 @@ class TestSOCKS5(object):
         times_connected = 0
 
         try:
-            for n in range(0, self.min_success_connections):
+            for n in range(0, test_times):
                 answer = urllib2.urlopen(self.test_url).read()
 
                 if answer == self.ip:
                     times_connected += 1
 
         except Exception as e:
-            logging.error("Error: %s", e)
+            logging.error("Error SOCKS5 connection test: %s", e)
             return False
 
         if times_connected == test_times:
@@ -44,7 +44,8 @@ class TestSOCKS5(object):
             return False
 
 class SOCKS5Server:
-    def __init__(self):
+    def __init__(self, db_tuple=None):
+
         self.identifier = str(uuid.uuid4())
         self.active = False
         self.port = None
@@ -55,23 +56,68 @@ class SOCKS5Server:
         self.last_checked = 0
         self.country = None
 
+        if db_tuple is not None:
+            self._set_server_info(db_tuple)
+
+
+    def _set_server_info(self, db_tuple):
+
+        self.identifier = db_tuple[0]
+        self.ip = db_tuple[1]
+        self.port = db_tuple[2]
+        self.username = db_tuple[3]
+        self.password = db_tuple[4]
+        self.country = db_tuple[5]
+        self.last_checked = db_tuple[6]
+        self.last_used = db_tuple[7]
+        self.active = db_tuple[8]
+
+
+    def is_ip_valid(self):
+        '''Checks if the currently set IP is valid'''
+
+        if self.ip is None:
+            return False
+        try:
+            socket.inet_aton(self.ip)
+            return True
+        except socket.error:
+            return False
+
+    def is_port_valid(self):
+        '''Checks is the currently set port is valid'''
+
+        if self.port is None:
+            return False
+        if not isinstance(self.port, (int, long)):
+            return False
+        if self.port > 0 and self.port < 65535:
+            return True
+
     def is_authenticated(self):
         '''Returns true if a username/password is needed for this server'''
 
-        if self.password is not None or self.username is not None:
+        empty = [None, ""]
+
+        if self.password not in empty or self.username not in empty:
             return True
         return False
 
     def is_active(self):
         '''Tests if this SOCKS5 server is still operating'''
 
+        if not self.is_authenticated():
+            self.username = None
+            self.password = None
+
         test_connection = TestSOCKS5(self.ip, self.port,
                                      self.username, self.password)
 
+        self._update_last_checked_time()
         if test_connection.test():
             self.active = True
-            self._update_last_checked_time()
             return True
+        self.active = False
         return False
 
     def _update_last_checked_time(self):

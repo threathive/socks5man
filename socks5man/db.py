@@ -50,12 +50,15 @@ class DbManager(object):
             server.last_used, server.active,
         )
 
+        self.open_connection()
         try:
             self.cursor.execute(query, args)
             self.conn.commit()
             success = True
         except sqlite3.Error as e:
             logging.error("Failed to insert new server: %s", e)
+
+        self.close_connection()
 
         return success
 
@@ -72,6 +75,7 @@ class DbManager(object):
             server.active, server.identifier,
         )
 
+        self.open_connection()
         try:
             self.cursor.execute(query, args)
             self.conn.commit()
@@ -79,7 +83,26 @@ class DbManager(object):
         except sqlite3.Error as e:
             logging.error("Failed to update server information: %s", e)
 
+        self.close_connection()
+
         return success
+
+    def get_all_servers(self):
+        servers = None
+        query = """
+            SELECT * FROM server
+        """
+
+        self.open_connection()
+        try:
+            self.cursor.execute(query)
+            servers = self.cursor.fetchall()
+        except sqlite3.Error as e:
+            logging.error("Failed to select all servers: %s", e)
+
+        self.close_connection()
+
+        return servers
 
     def get_longest_unused_server(self):
         query = """
@@ -87,23 +110,17 @@ class DbManager(object):
             ORDER BY last_used ASC LIMIT 1
         """
 
+        self.open_connection()
         try:
             self.cursor.execute(query)
             server_info = self.cursor.fetchone()
         except sqlite3.Error as e:
             logging.error("Failed to get longest unused server: %s", e)
 
+        self.close_connection()
+
         if server_info is None:
             return None
 
-        server = SOCKS5Server()
-        server.identifier = server_info[0]
-        server.ip = server_info[1]
-        server.port = server_info[2]
-        server.username = server_info[3]
-        server.password = server_info[4]
-        server.country = server_info[5]
-        server.last_checked = server_info[6]
-        server.last_used = server_info[7]
-        server.active = server_info[8]
+        server = SOCKS5Server(server_info)
         return server
