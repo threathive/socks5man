@@ -9,6 +9,23 @@ from socks5man.ServerManager import ServerManager
 
 server = Flask(__name__)
 
+@server.route("/")
+def list_socks5_servers():
+    message = None
+    server_manager = ServerManager()
+
+    if "del" in request.args.keys():
+        id = request.args.get("del")
+        message = server_manager.delete_server(id)
+
+    if "checkstatus" in request.args.keys():
+        if not server_manager.update_server_status(request.args.get("checkstatus")):
+            message = "Server does not exist"
+
+    servers = server_manager.get_all_servers()
+
+    return render_template("listservers.html", servers=servers,
+                           message=message)
 
 @server.route("/server/get")
 def get_socks5_server():

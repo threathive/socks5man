@@ -28,7 +28,7 @@ class TestSOCKS5(object):
 
         try:
             for n in range(0, test_times):
-                answer = urllib2.urlopen(self.test_url).read()
+                answer = urllib2.urlopen(self.test_url, timeout=5).read()
 
                 if answer == self.ip:
                     times_connected += 1
@@ -56,6 +56,11 @@ class SOCKS5Server:
         self.last_checked = 0
         self.country = None
 
+        # Strings used in web
+        self.last_used_human = None
+        self.last_checked_human = None
+        self.active_human = None
+
         if db_tuple is not None:
             self._set_server_info(db_tuple)
 
@@ -71,6 +76,21 @@ class SOCKS5Server:
         self.last_checked = db_tuple[6]
         self.last_used = db_tuple[7]
         self.active = db_tuple[8]
+        self.last_checked_human = self.get_human_last_checked_time()
+        self.last_used_human = self.get_human_last_used_time()
+        self._update_active_human()
+
+
+    def retrieve_country(self):
+        '''Use ipinfo.io to try and the country for the IP'''
+
+        url = "http://ipinfo.io/%s/country" % self.ip
+        try:
+            # Ask ipinfo for the country code. Remove stuff we don't want
+            self.country = urllib2.urlopen(url).read().rstrip()
+        except urllib2.HTTPError as e:
+            logging.error("Error while asking ipinfo.io for country for ip: %s",
+                          e)
 
 
     def is_ip_valid(self):
@@ -120,6 +140,13 @@ class SOCKS5Server:
         self.active = False
         return False
 
+    def _update_active_human(self):
+        '''Updates the active_human field to Offline or Online'''
+        if self.active == 1:
+            self.active_human = "Online"
+        else:
+            self.active_human = "Offline"
+
     def _update_last_checked_time(self):
         '''Updates the last checked time to current time in seconds'''
 
@@ -143,13 +170,13 @@ class SOCKS5Server:
     def get_json_settings(self):
         return {
             "id": self.identifier,
-            "active": self.active,
+            "active": self.active_human,
             "ip": self.ip,
             "port": self.port,
             "authenticated": self.is_authenticated(),
             "username": self.username,
             "password": self.password,
-            "last_used": self.get_human_last_used_time(),
-            "last_checked": self.get_human_last_checked_time(),
+            "last_used": self.last_used_human,
+            "last_checked": self.last_checked_human,
             "country": self.country,
         }

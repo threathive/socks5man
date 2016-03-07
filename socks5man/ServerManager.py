@@ -34,7 +34,6 @@ class ServerManager(object):
 
         server.username = request.form.get("username")
         server.password = request.form.get("password")
-        server.country = request.form.get("country")
 
         try:
             server.port = int(request.form.get("port"))
@@ -45,6 +44,8 @@ class ServerManager(object):
             return "Invalid IPv4 address"
         if not server.is_port_valid():
             return "Invalid port"
+
+        server.retrieve_country()
 
         if self.dbm.add_server(server):
             return "Server added! =)"
@@ -66,4 +67,35 @@ class ServerManager(object):
             server.is_active()
             self.dbm.update_server_stats(server)
 
+    def get_all_servers(self):
+        '''Returns a list with all servers as a SOCKS5Server object'''
+        server_list = []
+        servers = self.dbm.get_all_servers()
+
+        for info in servers:
+            server = SOCKS5Server(info)
+            server_list.append(server)
+
+        return server_list
+
+    def delete_server(self, identifier):
+        '''Deletes the server with the given identifier'''
+
+        if self.dbm.delete_server(identifier):
+            return "Server deleted!"
+        else:
+            return "Could not delete server"
+
+    def update_server_status(self, identifier):
+        '''Updates the server status for a single server'''
+
+        server = self.dbm.get_server(identifier)
+
+        if server is None:
+            return False
+
+        server.is_active()
+        self.dbm.update_server_stats(server)
+
+        return True
 

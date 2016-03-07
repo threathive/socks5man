@@ -1,0 +1,57 @@
+{% extends "header.html" %}
+{% block body %}
+
+<div class="col-md-10">
+    {% if message %}
+    <div class="alert alert-info col-md-2" align="center">
+        <strong>{{ message }}</strong>
+    </div>
+{% endif %}
+{% if servers %}
+    <table class="table table-striped well">
+        <thead>
+            <tr>
+                <th>IP</th>
+                <th>Port</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Country</th>
+                <th>Last alive check</th>
+                <th>Last use</th>
+                <th>Last status</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for server in servers %}
+            {% if server.active == 1 %}
+             <tr class="success">
+            {% else %}
+             <tr class="danger">
+            {% endif %}
+                <td class="col-md-1">{{ server.ip }}</td>
+                <td class="col-md-1">{{ server.port }}</td>
+                <td class="col-md-1">{{ server.username }}</td>
+                <td class="col-md-1">{{ server.password }}</td>
+                <td class="col-md-1">{{ server.country }}</td>
+                <td class="col-md-1">{{ server.last_checked_human }}</td>
+                <td class="col-md-1">{{ server.last_used_human }}</td>
+                <td class="col-md-1">{{ server.active_human }}</td>
+                <td class="col-md-1">
+                     <a href="/?del={{ server.identifier }}">
+                         <img src="{{ url_for('static', filename = 'delicon.png') }}" height="20" width="20" aria-label="Delete">
+                     </a>
+                     <a href="/?checkstatus={{ server.identifier }}">
+                         <img src="{{ url_for('static', filename = 'refreshicon.png') }}" height="20" width="20" aria-label="Update status">
+                     </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-warning col-md-2" align="center">
+    <strong>No servers to display</strong>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

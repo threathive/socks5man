@@ -122,5 +122,42 @@ class DbManager(object):
         if server_info is None:
             return None
 
-        server = SOCKS5Server(server_info)
-        return server
+        return SOCKS5Server(server_info)
+
+    def get_server(self, identifier):
+        server_info = None
+        query = """
+            SELECT * FROM server WHERE server_id = ?
+        """
+
+        self.open_connection()
+        try:
+            self.cursor.execute(query, (identifier,))
+            server_info = self.cursor.fetchone()
+        except sqlite3.Error as e:
+            logging.info("Failed to select server: %s")
+
+        self.close_connection()
+
+        if server_info is not None:
+            return SOCKS5Server(server_info)
+
+        return None
+
+    def delete_server(self, identifier):
+        success = False
+        query = """
+            DELETE FROM server WHERE server_id = ?
+        """
+
+        self.open_connection()
+        try:
+            self.cursor.execute(query, (identifier,))
+            self.conn.commit()
+            success = True
+        except sqlite3.Error as e:
+            logging.error("Failed to delete server: %s", e)
+
+        self.close_connection()
+
+        return success
