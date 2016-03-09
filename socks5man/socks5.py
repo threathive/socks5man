@@ -35,7 +35,9 @@ class TestSOCKS5(object):
 
         except Exception as e:
             logging.error("Error SOCKS5 connection test: %s", e)
-            return False
+
+        # Restore socket
+        socket.socket = socket._socketobject
 
         if times_connected == test_times:
             self.test_passed = True
