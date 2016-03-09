@@ -7,12 +7,15 @@ class ServerManager(object):
     def __init__(self):
         self.dbm = DbManager()
 
-    def get_server_json(self):
+    def get_server_json(self, country=None):
         '''Get server info in JSON for for the
         longest unused server'''
 
         json_response = None
-        server = self.dbm.get_longest_unused_server()
+        if country is not None:
+            server = self.dbm.get_longest_unused_server_country(country)
+        else:
+            server = self.dbm.get_longest_unused_server()
 
         if server is None:
             return json_response

@@ -117,6 +117,29 @@ class DbManager(object):
 
         return servers
 
+    def get_longest_unused_server_country(self, country):
+        query = """
+            SELECT * FROM server
+            WHERE active = 1 and country = ?
+            ORDER BY last_used ASC LIMIT 1
+        """
+
+        self.open_connection()
+        try:
+            self.cursor.execute(query, (country,))
+            server_info = self.cursor.fetchone()
+        except sqlite3.Error as e:
+            logging.error("Failed to get longest unused server for country: %s", e)
+
+        self.close_connection()
+
+        if server_info is None:
+            return None
+
+        return SOCKS5Server(server_info)
+
+
+
     def get_longest_unused_server(self):
         query = """
             SELECT * FROM server WHERE active = 1

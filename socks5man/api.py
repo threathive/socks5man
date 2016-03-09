@@ -33,13 +33,17 @@ def get_socks5_server():
 
     json_response = {"servers": []}
 
-    server = server_manager.get_server_json()
+    country = None
+    if "country" in request.args.keys():
+        country = request.args.get("country");
+
+    server = server_manager.get_server_json(country)
 
     if server is not None:
         json_response["servers"].append(server)
         return jsonify(json_response), 200
 
-    return jsonify(json_response), 404
+    return jsonify(json_response), 200
 
 
 @server.route("/server/add", methods=["POST", "GET"])
