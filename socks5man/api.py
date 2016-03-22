@@ -54,6 +54,11 @@ def add_socks5_server():
 
     return render_template("add_server.html", message=message)
 
+@server.route("/server/checkall")
+def server_checkall():
+    server_manager = ServerManager()
+    server_manager.test_all_servers()
+    return jsonify({"status": "OK"})
 
 def start_api():
     listen_ip = "0.0.0.0"
