@@ -16,3 +16,5 @@ IANA_RESERVERD_IPV4_RANGES = [
     "255.255.255.255/32",
     "224.0.0.0/4"
 ]
+
+IP_API_URL = "https://api.ipify.org"

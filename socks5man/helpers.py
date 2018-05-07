@@ -1,11 +1,16 @@
 import os
 import struct
 import socket
+import socks
+import urllib2
+import logging
 
 from geoip2 import database as geodatabase
 from geoip2.errors import GeoIP2Error
 
 from socks5man.constants import IANA_RESERVERD_IPV4_RANGES
+
+log = logging.getLogger(__name__)
 
 def cwd(*args):
     return os.path.join("", *args)
@@ -101,3 +106,20 @@ def validify_host_port(host, port):
         ip=host,
         port=port
     )
+
+def get_over_socks5(url, host, port, username=None, password=None, timeout=2):
+    """Make a HTTP GET request over socks5 of the given URL"""
+    socks.set_default_proxy(
+        socks.SOCKS5, host, port,
+        username=username, password=password
+    )
+
+    response = None
+    try:
+        socket.socket = socks.socksocket
+        response = urllib2.urlopen(url, timeout=timeout).read()
+    except socket.error as e:
+        log.error("Error making HTTP GET over socsk5: %s", e)
+    finally:
+        socket.socket = socket._socketobject
+    return response

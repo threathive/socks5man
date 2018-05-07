@@ -1,4 +1,6 @@
 from socks5man.database import Database
+from socks5man.helpers import get_over_socks5, is_ipv4, get_ipv4_hostname
+from socks5man.constants import IP_API_URL
 import urllib2
 import socket
 import socks
@@ -13,23 +15,18 @@ class Socks5(object):
         self.db_socks5 = db_socks5
 
     def verify(self):
-        socks.set_default_proxy(
-            socks.SOCKS5, self.host, self.port,
-            username=self.username, password=self.password
+        response = get_over_socks5(
+            IP_API_URL, self.host, self.port, username=self.username,
+            password=self.password
         )
-        socket.socket = socks.socksocket
-        success = False
-        try:
-            x = urllib2.urlopen("https://api.ipify.org/", timeout=2)
-            res = x.read()
-            print "%s -> %s" % (self.host, res)
-            success = True
-        except Exception as e:
-            print e
-            pass
-        socket.socket = socket._socketobject
-
-        return success
+        if not response:
+            return False
+        ip = self.host
+        if not is_ipv4(self.host):
+            ip = get_ipv4_hostname(self.host)
+        if ip == response:
+            return True
+        return False
 
     def approx_bandwidth(self):
         pass
