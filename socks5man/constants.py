@@ -18,3 +18,6 @@ IANA_RESERVERD_IPV4_RANGES = [
 ]
 
 IP_API_URL = "https://api.ipify.org"
+
+# TODO move to config
+SPEEDTEST_FILE_URL = "http://speedtest.xs4all.net/files/1MB.bin"
