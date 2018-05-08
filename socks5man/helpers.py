@@ -1,14 +1,15 @@
+import logging
 import os
-import struct
 import socket
 import socks
+import struct
+import time
 import urllib2
-import logging
+
+from socks5man.constants import IANA_RESERVERD_IPV4_RANGES, SPEEDTEST_FILE_URL
 
 from geoip2 import database as geodatabase
 from geoip2.errors import GeoIP2Error
-
-from socks5man.constants import IANA_RESERVERD_IPV4_RANGES
 
 log = logging.getLogger(__name__)
 
@@ -107,7 +108,7 @@ def validify_host_port(host, port):
         port=port
     )
 
-def get_over_socks5(url, host, port, username=None, password=None, timeout=2):
+def get_over_socks5(url, host, port, username=None, password=None, timeout=3):
     """Make a HTTP GET request over socks5 of the given URL"""
     socks.set_default_proxy(
         socks.SOCKS5, host, port,
@@ -118,8 +119,62 @@ def get_over_socks5(url, host, port, username=None, password=None, timeout=2):
     try:
         socket.socket = socks.socksocket
         response = urllib2.urlopen(url, timeout=timeout).read()
-    except socket.error as e:
+    except (socket.error, urllib2.URLError, socks.ProxyError) as e:
         log.error("Error making HTTP GET over socsk5: %s", e)
     finally:
         socket.socket = socket._socketobject
     return response
+
+def approximate_bandwidth(host, port, username=None, password=None,
+                          connecttime=0, maxfail=1, times=2):
+    """Tries to determine the average download speed in Mbit/s.
+    Higher 'times' values will result in more accurate speeds, but will
+    take a longer time.
+    @param connecttime: The time it takes on average to connect to the
+    specified socks5. This value is subtracted from the total time it takes
+    to download a test file.
+    @param maxfail: The maximum amount of times the socks5 is allowed to
+    timeout before the measurement should stop
+    @param times: The amount of times the test file should be downloaded.
+    Optimal amount would be 3-4.
+    """
+    total = 0
+    fails = 0
+    test_url = SPEEDTEST_FILE_URL
+    try:
+        urllib2.urlopen(test_url, timeout=5)
+    except (socket.error, urllib2.URLError) as e:
+        log.error("Failed to download speed test file: %s", e)
+        return 0.0
+
+    for t in range(times):
+        start = time.time()
+        response = get_over_socks5(
+            test_url, host, port, username=username, password=password,
+            timeout=10
+        )
+        # TODO get timeouts from config
+        if not response:
+            if fails >= maxfail:
+                return 0.0
+            fails += 1
+
+        took = time.time() - start
+
+        # Take into account a connection time to get a more
+        # accurate bandwidth
+        if connecttime:
+            took -= connecttime
+
+        # Calculate the approximate Mbit/s
+        speed = (len(response) / took) / 1000000 * 8
+
+        # If the used file to measure is smaller than approx 1 MB,
+        # add a small amount as the small size might cause the TCP window
+        # to stay small
+        if len(response) < 1000000:
+            speed += speed * 0.1
+
+        total += speed
+
+    return total / times
