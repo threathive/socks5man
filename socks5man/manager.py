@@ -5,6 +5,7 @@ from socks5man.exceptions import Socks5CreationError
 from socks5man.helpers import (
     Dictionary, validify_host_port, ipv4info
 )
+from socks5man.socks5 import Socks5
 
 log = logging.getLogger(__name__)
 
@@ -12,9 +13,17 @@ db = Database()
 
 class Manager(object):
 
-    def find(self, host=None, port=None, country=None, country_code=None,
-             city=None, username=None, operational=True, limit=1):
-        pass
+    def acquire(self, country=None, country_code=None, city=None,
+                min_mbps_down=None, max_connect_time=None, update_usage=True,
+                limit=1):
+
+        socks5_result = db.find_socks5(
+            country=country, country_code=country_code, city=city,
+            min_mbps_down=min_mbps_down, max_connect_time=max_connect_time,
+            update_usage=update_usage, limit=limit
+        )
+
+        return [Socks5(db_socks5) for db_socks5 in socks5_result]
 
     def add(self, host, port, username=None, password=None, description=None):
         if (not username and password) or (not password and username):
