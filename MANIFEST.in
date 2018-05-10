@@ -1,0 +1,2 @@
+graft socks5man
+recursive-exclude * *.pyc *.pyo
