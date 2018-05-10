@@ -1,20 +1,18 @@
 import logging
-import os
 import socket
 import socks
 import struct
 import time
 import urllib2
 
-from socks5man.constants import IANA_RESERVERD_IPV4_RANGES, SPEEDTEST_FILE_URL
+from socks5man.config import cfg
+from socks5man.constants import IANA_RESERVERD_IPV4_RANGES
+from socks5man.misc import cwd
 
 from geoip2 import database as geodatabase
 from geoip2.errors import GeoIP2Error
 
 log = logging.getLogger(__name__)
-
-def cwd(*args):
-    return os.path.join("", *args)
 
 class Dictionary(dict):
     """Custom dict support reading keys as attributes"""
@@ -47,7 +45,7 @@ def is_reserved_ipv4(ip):
     return False
 
 def is_ipv4(ip):
-    """Try to parse string as Ipv4. Return True if succes, False
+    """Try to parse string as Ipv4. Return True if success, False
     otherwise"""
     try:
         socket.inet_aton(ip)
@@ -126,7 +124,7 @@ def get_over_socks5(url, host, port, username=None, password=None, timeout=3):
     return response
 
 def approximate_bandwidth(host, port, username=None, password=None,
-                          connecttime=0, maxfail=1, times=2):
+                          connecttime=0, maxfail=1, times=2, timeout=10):
     """Tries to determine the average download speed in Mbit/s.
     Higher 'times' values will result in more accurate speeds, but will
     take a longer time.
@@ -140,23 +138,22 @@ def approximate_bandwidth(host, port, username=None, password=None,
     """
     total = 0
     fails = 0
-    test_url = SPEEDTEST_FILE_URL
+    test_url = cfg("bandwidth", "download_url")
     try:
         urllib2.urlopen(test_url, timeout=5)
     except (socket.error, urllib2.URLError) as e:
         log.error("Failed to download speed test file: %s", e)
-        return 0.0
+        return None
 
     for t in range(times):
         start = time.time()
         response = get_over_socks5(
             test_url, host, port, username=username, password=password,
-            timeout=10
+            timeout=timeout
         )
-        # TODO get timeouts from config
         if not response:
             if fails >= maxfail:
-                return 0.0
+                return None
             fails += 1
 
         took = time.time() - start

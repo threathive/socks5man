@@ -1,15 +1,21 @@
 import logging
+import platform
 import socket
 import socks
 import time
 
-from socks5man.constants import IP_API_URL
+from socks5man.config import cfg
 from socks5man.database import Database
 from socks5man.helpers import (
-    get_over_socks5, is_ipv4, get_ipv4_hostname, approximate_bandwidth
+    get_over_socks5, is_ipv4, get_ipv4_hostname, approximate_bandwidth,
+    is_reserved_ipv4
 )
 
 log = logging.getLogger(__name__)
+
+# Required for socks connecting to work on Windows
+if platform.system().lower() == "windows":
+    import win_inet_pton
 
 db = Database()
 
@@ -30,13 +36,20 @@ class Socks5(object):
             ip = get_ipv4_hostname(ip)
 
         response = get_over_socks5(
-            IP_API_URL, self.host, self.port, username=self.username,
-            password=self.password, timeout=3
+            cfg("operationality", "ip_api"), self.host, self.port,
+            username=self.username, password=self.password,
+            timeout=cfg("operationality", "timeout")
         )
-        # TODO replace timeout with config timeout
 
-        if response and response == ip:
-            operational = True
+        if response:
+            if ip == response:
+                operational = True
+
+            # If a private ip is used, the api response will not match with
+            # the configured host or its ip. There was however a response,
+            # therefore we still mark it as operational
+            elif is_reserved_ipv4(ip) and is_ipv4(response):
+                operational = True
 
         db.set_operational(self.id, operational)
         return operational
@@ -47,9 +60,10 @@ class Socks5(object):
         updated in the database"""
         approx_bandwidth = approximate_bandwidth(
             self.host, self.port, username=self.username,
-            password=self.password, connecttime=self.connect_time, times=2
+            password=self.password, connecttime=self.connect_time,
+            times=cfg("bandwidth", "times"),
+            timeout=cfg("bandwidth", "timeout")
         )
-        # TODO Get times from config
         db.set_approx_bandwidth(self.id, approx_bandwidth)
         return approx_bandwidth
 
@@ -62,12 +76,14 @@ class Socks5(object):
             socks.SOCKS5, self.host, self.port, username=self.username,
             password=self.password
         )
-        # TODO replace timeout with config
-        s.settimeout(3)
+
+        s.settimeout(cfg("connection_time", "timeout"))
         start = time.time()
-        # TODO replace connect test URL with curl from config
         try:
-            s.connect(("speedtest.xs4all.net", 80))
+            s.connect((
+                    cfg("connection_time", "hostname"),
+                    cfg("connection_time", "port")
+            ))
             s.close()
         except (socks.ProxyError, socket.error) as e:
             log.error("Error connecting in connection time test: %s", e)

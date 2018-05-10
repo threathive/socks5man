@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from socks5man.exceptions import Socks5manError
-from socks5man.helpers import cwd
+from socks5man.misc import cwd
 
 from sqlalchemy import (
     Column, Integer, String, DateTime, Boolean, Text, create_engine,
@@ -79,9 +79,6 @@ class Database(object):
         except SQLAlchemyError as e:
             raise Socks5manError("Failed to created database tables: %s" % e)
 
-    def __del__(self):
-        self.engine.dispose()
-
     def add_socks5(self, host, port, country, country_code, operational=False,
                    city=None, username=None, password=None, description=None):
         """Add new socks5 server to the database"""
@@ -116,8 +113,7 @@ class Database(object):
             session.close()
         return True
 
-    def list_socks5(self, country=None, country_code=None, city=None,
-                    limit=500):
+    def list_socks5(self, country=None, country_code=None, city=None):
 
         session = self.Session()
         socks = session.query(Socks5)
@@ -128,7 +124,7 @@ class Database(object):
                 socks = socks.filter_by(country_code=country_code)
             if city:
                 socks = socks.filter_by(city=city)
-            socks = socks.limit(limit).all()
+            socks = socks.all()
             return socks
         except SQLAlchemyError as e:
             log.error("Error retrieving list of socks5s: %s", e)
