@@ -17,12 +17,10 @@ def create_cwd():
         if not os.path.exists(cwd(dir)):
             shutil.copytree(cwd(dir, internal=True), cwd(dir))
 
-    with tarfile.open(cwd("geodb", "geodblite.tar.gz")) as tar:
-        unpack_mmdb(tar, cwd("geodb", "extracted", "geodblite.mmdb"))
-
-    geodb_hash = md5(cwd("geodb", "geodblite.tar.gz"))
-    with open(cwd("geodb", ".version"), "wb") as fw:
-        fw.write(geodb_hash)
+    unpack_mmdb(
+        cwd("geodb", "geodblite.tar.gz"),
+        cwd("geodb", "extracted", "geodblite.mmdb")
+    )
 
 def md5(fname):
     hash_md5 = hashlib.md5()
@@ -35,15 +33,20 @@ def md5(fname):
 
     return hash_md5.hexdigest()
 
-def unpack_mmdb(tar, to):
-    for member in tar:
-        if not member.isfile():
-            continue
+def unpack_mmdb(tarpath, to):
+    with tarfile.open(tarpath) as tar:
+        for member in tar:
+            if not member.isfile():
+                continue
 
-        if os.path.splitext(member.name)[1] == ".mmdb":
-            with open(to, "wb") as fw:
-                shutil.copyfileobj(tar.fileobj, fw, member.size)
-            break
+            if os.path.splitext(member.name)[1] == ".mmdb":
+                with open(to, "wb") as fw:
+                    shutil.copyfileobj(tar.fileobj, fw, member.size)
+                break
+
+    geodb_hash = md5(cwd("geodb", "geodblite.tar.gz"))
+    with open(cwd("geodb", ".version"), "wb") as fw:
+        fw.write(geodb_hash)
 
 def cwd(*args, **kwargs):
     if kwargs.get("internal"):

@@ -8,8 +8,7 @@ from socks5man.database import Database
 from socks5man.exceptions import Socks5manError
 from socks5man.logs import init_loggers
 from socks5man.manager import Manager
-from socks5man.tools import verify_all
-
+from socks5man.tools import verify_all, update_geodb
 
 log = logging.getLogger(__name__)
 db = Database()
@@ -97,3 +96,8 @@ def bulk_add(file_path, description):
     except Socks5manError as e:
         log.error("Failed to bulk add: %s", e)
         sys.exit(1)
+
+@main.command()
+def update_geoinfo():
+    """Update version of the used Maxmind geodb"""
+    update_geodb()
