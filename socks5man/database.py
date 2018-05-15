@@ -6,7 +6,7 @@ from socks5man.misc import cwd
 
 from sqlalchemy import (
     Column, Integer, String, DateTime, Boolean, Text, create_engine,
-    Float
+    Float, and_
 )
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
@@ -113,8 +113,9 @@ class Database(object):
             session.close()
         return True
 
-    def list_socks5(self, country=None, country_code=None, city=None):
-
+    def list_socks5(self, country=None, country_code=None, city=None,
+                    host=None):
+        """Return a list of socks5 servers matching the filters"""
         session = self.Session()
         socks = session.query(Socks5)
         try:
@@ -124,6 +125,11 @@ class Database(object):
                 socks = socks.filter_by(country_code=country_code)
             if city:
                 socks = socks.filter_by(city=city)
+            if host:
+                if isinstance(host, (list, tuple)):
+                    socks = socks.filter(Socks5.host.in_(set(host)))
+                else:
+                    socks = socks.filter_by(host=host)
             socks = socks.all()
             return socks
         except SQLAlchemyError as e:
@@ -132,11 +138,22 @@ class Database(object):
         finally:
             session.close()
 
-    def view_socks5(self, socks5_id):
+    def view_socks5(self, socks5_id=None, host=None, port=None):
+        """Returns a socks5 server matching the given id"""
         session = self.Session()
-        socks5 = None
+        socks5 = socks5 = session.query(Socks5)
         try:
-            socks5 = session.query(Socks5).get(socks5_id)
+            if socks5_id:
+                socks5 = socks5.get(socks5_id)
+            elif host and port:
+                socks5 = socks5.filter(and_(
+                    Socks5.host==host, Socks5.port==port
+                )).first()
+            else:
+                raise Socks5manError(
+                    "Socks5 id or host and port should be provided"
+                )
+
             if socks5:
                 session.expunge(socks5)
         except SQLAlchemyError as e:
@@ -146,8 +163,8 @@ class Database(object):
         return socks5
 
     def find_socks5(self, country=None, country_code=None, city=None,
-                    min_mbps_down=None, max_connect_time=None, update_usage=True,
-                    limit=1):
+                    min_mbps_down=None, max_connect_time=None,
+                    update_usage=True, limit=1):
         """Find one or more matching socks5 servers matching the provided
         filters. Names etc should be in English
         @param country: The country

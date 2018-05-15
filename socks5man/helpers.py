@@ -53,31 +53,40 @@ def is_ipv4(ip):
     except socket.error:
         return False
 
-georeader = geodatabase.Reader(cwd("GeoLite2-City.mmdb"))
-def ipv4info(ip):
-    """Returns a dict containing the country, country_code, and city for
-    a given IPv4 address"""
-    result = {
-        "country": "unknown",
-        "country_code": "unknown",
-        "city": "unknown"
-    }
+class GeoInfo(object):
 
-    if is_reserved_ipv4(ip):
+    georeader = None
+
+    @staticmethod
+    def ipv4info(ip):
+        """Returns a dict containing the country, country_code, and city for
+        a given IPv4 address"""
+        result = {
+            "country": "unknown",
+            "country_code": "unknown",
+            "city": "unknown"
+        }
+
+        if not GeoInfo.georeader:
+            georeader = geodatabase.Reader(
+                cwd("geodb", "extracted", "geodblite.mmdb")
+            )
+
+        if is_reserved_ipv4(ip):
+            return result
+
+        try:
+            geodata = georeader.city(ip)
+            if geodata.country.name:
+                result["country"] = geodata.country.name
+            if geodata.country.iso_code:
+                result["country_code"] = geodata.country.iso_code
+            if geodata.city.name:
+                result["city"] = geodata.city.name
+        except GeoIP2Error:
+            return result
+
         return result
-
-    try:
-        geodata = georeader.city(ip)
-        if geodata.country.name:
-            result["country"] = geodata.country.name
-        if geodata.country.iso_code:
-            result["country_code"] = geodata.country.iso_code
-        if geodata.city.name:
-            result["city"] = geodata.city.name
-    except GeoIP2Error:
-        return result
-
-    return result
 
 def get_ipv4_hostname(hostname):
     """Get IPv4 for specified hostname. Return None on fail"""
@@ -155,6 +164,7 @@ def approximate_bandwidth(host, port, username=None, password=None,
             if fails >= maxfail:
                 return None
             fails += 1
+            continue
 
         took = time.time() - start
 

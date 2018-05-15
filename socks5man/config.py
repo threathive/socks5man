@@ -31,6 +31,10 @@ class Config(object):
             "download_url": str,
             "times": int,
             "timeout": int
+        },
+        "geodb": {
+            "geodb_url": str,
+            "geodb_md5_url": str
         }
     }
 

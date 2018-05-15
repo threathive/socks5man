@@ -26,6 +26,7 @@ def verify_all(service=False):
                     "Operationality check (%s:%s): FAILED",
                     socks5.host, socks5.port
                 )
+                continue
 
             if cfg("connection_time", "enabled"):
                 con_time = socks5.measure_connection_time()
