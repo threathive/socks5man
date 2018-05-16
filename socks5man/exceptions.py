@@ -7,3 +7,7 @@ class Socks5CreationError(Socks5manError):
 class Socks5ConfigError(Socks5manError):
     """Error that should be raised when issues occur when reading a config
     file"""
+
+class Socks5manDatabaseError(Socks5manError):
+    """Error that should be raised when issue/exceptions occur when
+    performing database operations"""

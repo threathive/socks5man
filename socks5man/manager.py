@@ -95,33 +95,35 @@ class Manager(object):
                 entry["description"] = description
 
             new_entry = {
-                "host": None,
-                "port": None,
+                "host": entry.get("host"),
+                "port": entry.get("port"),
                 "country": None,
                 "country_code": None,
                 "city": None,
-                "username": None,
-                "password": None,
+                "username": entry.get("username"),
+                "password": entry.get("password"),
                 "operational": False,
                 "description": None
             }
-            new_entry.update(entry)
             new_entry.update(GeoInfo.ipv4info(valid_entry.ip))
             new.append(new_entry)
-
-        hosts = [(s["host"], s["port"]) for s in new]
-        existing = db.list_socks5(host=[s[0] for s in hosts])
-        for socks5 in [(e.host, e.port) for e in existing]:
-            if socks5 in hosts:
-                raise Socks5CreationError(
-                    "Socks5 host port combination '%s:%s' already"
-                    " exists" % socks5
-                )
 
         if not new:
             raise Socks5CreationError("No socks5 servers to add provided")
 
-        if db.bulk_add_socks5(new):
-            return len(new)
-        else:
-            return 0
+        db.bulk_add_socks5(new)
+        return len(new)
+
+    def delete(self, socks5_id):
+        return db.remove_socks5(socks5_id)
+
+    def delete_all(self):
+        db.delete_all_socks5()
+
+    def list_socks5(self, country=None, country_code=None, city=None,
+                    host=None, operational=None):
+        socks5s = db.list_socks5(
+            country=country, country_code=country_code, city=city,
+            host=host, operational=operational
+        )
+        return [Socks5(s) for s in socks5s]

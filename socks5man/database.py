@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from socks5man.exceptions import Socks5manError
+from socks5man.exceptions import Socks5manError, Socks5manDatabaseError
 from socks5man.misc import cwd
 
 from sqlalchemy import (
@@ -51,6 +51,8 @@ class Socks5(Base):
             value = getattr(self, column.name)
             if isinstance(value, datetime):
                 socks_dict[column.name] = value.strftime("%Y-%m-%d %H:%M:%S")
+            elif isinstance(value, (str, basestring)):
+                socks_dict[column.name] = value.encode("utf-8")
             else:
                 socks_dict[column.name] = value
 
@@ -94,11 +96,11 @@ class Database(object):
             session.add(socks5)
             session.commit()
         except SQLAlchemyError as e:
-            log.error("Error adding new socks5 to the database: %s", e)
-            return False
+            raise Socks5manDatabaseError(
+                "Error adding new socks5 to the database: %s" % e
+            )
         finally:
             session.close()
-        return True
 
     def remove_socks5(self, id):
         """Removes the socks5 entry with the specified id"""
@@ -107,18 +109,20 @@ class Database(object):
             session.query(Socks5).filter_by(id=id).delete()
             session.commit()
         except SQLAlchemyError as e:
-            log.error("Error while removing socks5 from the database: %s", e)
-            return False
+            raise Socks5manDatabaseError(
+                "Error while removing socks5 from the database: %s" % e
+            )
         finally:
             session.close()
-        return True
 
     def list_socks5(self, country=None, country_code=None, city=None,
-                    host=None):
+                    host=None, operational=None):
         """Return a list of socks5 servers matching the filters"""
         session = self.Session()
         socks = session.query(Socks5)
         try:
+            if operational is not None:
+                socks = socks.filter_by(operational=operational)
             if country:
                 socks = socks.filter_by(country=country)
             if country_code:
@@ -131,17 +135,21 @@ class Database(object):
                 else:
                     socks = socks.filter_by(host=host)
             socks = socks.all()
+            for s in socks:
+                session.expunge(s)
+
             return socks
         except SQLAlchemyError as e:
-            log.error("Error retrieving list of socks5s: %s", e)
-            return []
+            raise Socks5manDatabaseError(
+                "Error retrieving list of socks5s: %s" % e
+            )
         finally:
             session.close()
 
     def view_socks5(self, socks5_id=None, host=None, port=None):
         """Returns a socks5 server matching the given id"""
         session = self.Session()
-        socks5 = socks5 = session.query(Socks5)
+        socks5 = session.query(Socks5)
         try:
             if socks5_id:
                 socks5 = socks5.get(socks5_id)
@@ -150,14 +158,14 @@ class Database(object):
                     Socks5.host==host, Socks5.port==port
                 )).first()
             else:
-                raise Socks5manError(
+                raise Socks5manDatabaseError(
                     "Socks5 id or host and port should be provided"
                 )
 
             if socks5:
                 session.expunge(socks5)
         except SQLAlchemyError as e:
-            log.error("Error finding socks5: %s", e)
+            raise Socks5manDatabaseError("Error finding socks5: %s" % e)
         finally:
             session.close()
         return socks5
@@ -209,7 +217,7 @@ class Database(object):
                     session.expunge(s)
 
         except SQLAlchemyError as e:
-            log.error("Error finding socks5: %s",e)
+            raise Socks5manDatabaseError("Error finding socks5: %s" % e)
         finally:
             session.close()
 
@@ -221,10 +229,10 @@ class Database(object):
         all filled in columns for each socks5 entry."""
         try:
             self.engine.execute(Socks5.__table__.insert(), socks5_dict_list)
-            return True
         except SQLAlchemyError as e:
-            log.error("Error bulk adding socks5 to database: %s", e)
-            return False
+            raise Socks5manDatabaseError(
+                "Error bulk adding socks5 to database: %s" % e
+            )
 
     def set_operational(self, socks5_id, operational):
         """Change the operational status for the given socks5 to the
@@ -239,7 +247,9 @@ class Database(object):
             socks5.last_check = datetime.now()
             session.commit()
         except SQLAlchemyError as e:
-            log.error("Error updating operational status in database: %s", e)
+            raise Socks5manDatabaseError(
+                "Error updating operational status in database: %s" % e
+            )
         finally:
             session.close()
 
@@ -253,7 +263,9 @@ class Database(object):
             ).update({"connect_time": connect_time})
             session.commit()
         except SQLAlchemyError as e:
-            log.error("Error updating connect time in database: %s", e)
+            raise Socks5manDatabaseError(
+                "Error updating connect time in database: %s" % e
+            )
         finally:
             session.close()
 
@@ -267,6 +279,20 @@ class Database(object):
             ).update({"bandwidth": bandwidth})
             session.commit()
         except SQLAlchemyError as e:
-            log.error("Error updating bandwidth in database: %s", e)
+            raise Socks5manDatabaseError(
+                "Error updating bandwidth in database: %s" % e
+            )
+        finally:
+            session.close()
+
+    def delete_all_socks5(self):
+        session = self.Session()
+        try:
+            session.query(Socks5).delete()
+            session.commit()
+        except SQLAlchemyError as e:
+            raise Socks5manDatabaseError(
+                "Failed to delete all socks5 servers: %s" % e
+            )
         finally:
             session.close()

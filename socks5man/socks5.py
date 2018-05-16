@@ -103,7 +103,9 @@ class Socks5(object):
 
     @property
     def host(self):
-        return self.db_socks5.host
+        if self.db_socks5.host:
+            return self.db_socks5.host.encode("utf-8")
+        return None
 
     @property
     def port(self):
@@ -111,7 +113,9 @@ class Socks5(object):
 
     @property
     def country(self):
-        return self.db_socks5.country
+        if self.db_socks5.country:
+            return self.db_socks5.country.encode("utf-8")
+        return None
 
     @property
     def country_code(self):
@@ -119,11 +123,15 @@ class Socks5(object):
 
     @property
     def city(self):
-        return self.db_socks5.city
+        if self.db_socks5.city:
+            return self.db_socks5.city.encode("utf-8")
+        return None
 
     @property
     def username(self):
-        return self.db_socks5.username
+        if self.db_socks5.username:
+            return self.db_socks5.username.encode("utf-8")
+        return None
 
     @property
     def password(self):
@@ -155,7 +163,9 @@ class Socks5(object):
 
     @property
     def description(self):
-        return self.db_socks5.description
+        if self.db_socks5.description:
+            return self.db_socks5.description.encode("utf-8")
+        return None
 
     def __repr__(self):
         return "<Socks5(host=%s, port=%s, country=%s, authenticated=%s)>" % (

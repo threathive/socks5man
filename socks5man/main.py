@@ -4,14 +4,12 @@ import logging
 import os
 import sys
 
-from socks5man.database import Database
 from socks5man.exceptions import Socks5manError
 from socks5man.logs import init_loggers
 from socks5man.manager import Manager
 from socks5man.tools import verify_all, update_geodb
 
 log = logging.getLogger(__name__)
-db = Database()
 m = Manager()
 
 @click.group()
@@ -50,7 +48,7 @@ def add(host, port, username, password, description):
     try:
         entry = m.add(
             host, port, username=username, password=password,
-            description=description
+            description=unicode(description)
         )
     except Socks5manError as e:
         log.error("Failed to add socks5 server: %s", e)
@@ -65,7 +63,8 @@ def add(host, port, username, password, description):
 @click.argument("file_path")
 @click.option("-d", "--description", help="Description for this socks5 server bulk")
 def bulk_add(file_path, description):
-    """Bulk add socks5 servers from CSV file"""
+    """Bulk add socks5 servers from CSV file. It does not verify if any of the provided
+    servers already exist."""
     if not os.path.isfile(file_path):
         log.error("File '%s' does not exist", file_path)
         sys.exit(1)
@@ -101,3 +100,78 @@ def bulk_add(file_path, description):
 def update_geoinfo():
     """Update version of the used Maxmind geodb"""
     update_geodb()
+
+@main.command()
+@click.argument("socks5_ids", nargs=-1, required=False, type=click.INT)
+@click.option("--everything", is_flag=True, help="Delete all socks5 servers")
+def delete(socks5_ids, everything):
+    """Remove the specified socks5 servers"""
+    if socks5_ids:
+        for socksid in socks5_ids:
+            log.info("Deleting socks5 server with id: %s", socksid)
+            try:
+                m.delete(socks5_id=socksid)
+            except Socks5manError as e:
+                log.error("Error deleting socks5 id %s. Error: %s", e)
+
+    elif everything:
+        try:
+            m.delete_all()
+        except Socks5manError as e:
+            log.error("Error deleting all socks5 server: %s", e)
+            sys.exit(1)
+
+        log.info("Removed all socks5 servers")
+
+@main.command()
+@click.option("--country", help="Filtery by the country of a socks5 ip")
+@click.option("--code", help="Filter by the 2-letter country code")
+@click.option("--city", help="Filter by the city of a socks5 ip")
+@click.option("--host", help="Filtery by a hostname/ip")
+@click.option("--operational", is_flag=True, help="Only export socks5 servers that were tested to be operational")
+@click.option("--export", type=click.Path(), help="Export as CSV to given file path")
+def list(country, code, city, host, operational, export):
+    """List or export all socks5 servers"""
+    if not operational:
+        operational = None
+
+    socks5s = m.list_socks5(
+        country=country, country_code=code, city=city,
+        host=host, operational=operational
+    )
+
+    if not socks5s:
+        log.warning("No (matching) socks5 servers found")
+        sys.exit(1)
+
+    if not export:
+        print(
+            "{:<4} {:<16} {:<5} {:<16} {:<3} {:<16} {:<16} {:<16}".format(
+                "ID", "Host", "Port", "Country", "Country Code", "City",
+                "Username", "Password"
+            )
+        )
+        for socks5 in socks5s:
+            print(
+                "{:<4} {:<16} {:<5} {:<16} {:<3} {:<16} {:<16} {:<16}".format(
+                    socks5.id, socks5.host, socks5.port, socks5.country,
+                    socks5.country_code, socks5.city, socks5.username,
+                    socks5.password
+                )
+            )
+        sys.exit(0)
+
+    if os.path.exists(export):
+        log.error("Path '%s' exists", export)
+        sys.exit(1)
+
+    with open(export, "wb") as fw:
+        csv_w = csv.writer(fw)
+        header = True
+        for socks5 in socks5s:
+            socks5_d = socks5.to_dict()
+            if header:
+                csv_w.writerow(socks5_d.keys())
+                header = False
+
+            csv_w.writerow(socks5_d.values())
