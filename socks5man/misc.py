@@ -6,12 +6,14 @@ import tarfile
 
 import socks5man
 
-global _path
-_path = os.path.expanduser("~/.socks5man")
+_path = None
 
-def create_cwd():
-    if not os.path.isdir(_path):
-        os.mkdir(_path)
+def create_cwd(path=None):
+    if not path:
+        path = _path
+
+    if not os.path.isdir(path):
+        os.mkdir(path)
 
     for dir in os.listdir(cwd(internal=True)):
         if not os.path.exists(cwd(dir)):
@@ -44,17 +46,23 @@ def unpack_mmdb(tarpath, to):
                     shutil.copyfileobj(tar.fileobj, fw, member.size)
                 break
 
-    geodb_hash = md5(cwd("geodb", "geodblite.tar.gz"))
+    geodb_hash = md5(tarpath)
     with open(cwd("geodb", ".version"), "wb") as fw:
         fw.write(geodb_hash)
+
+def set_cwd(path):
+    global _path
+    _path = os.path.expanduser(path)
 
 def cwd(*args, **kwargs):
     if kwargs.get("internal"):
         return os.path.join(socks5man.__path__[0], "setupdata", *args)
 
+    if not _path:
+        set_cwd("~/.socks5man")
+
     if not os.path.isdir(_path):
-        os.mkdir(_path)
-        create_cwd()
+        create_cwd(_path)
 
     return os.path.join(_path, *args)
 
