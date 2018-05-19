@@ -7,8 +7,9 @@ import urllib2
 
 from socks5man.config import cfg
 from socks5man.database import Database
-from socks5man.socks5 import Socks5
+from socks5man.helpers import GeoInfo, is_ipv4, get_ipv4_hostname
 from socks5man.misc import cwd, unpack_mmdb
+from socks5man.socks5 import Socks5
 
 log = logging.getLogger(__name__)
 db = Database()
@@ -138,3 +139,30 @@ def update_geodb():
     if renamed:
         log.debug("Removing old version")
         shutil.rmtree(renamed)
+
+    log.info("Updating geo IP information for all existing servers")
+    GeoInfo.georeader = None
+    for socks5 in db.list_socks5():
+        log.debug(
+            "Updating server: '%s'. Current country: %s",
+            socks5.host, socks5.country
+        )
+        ip = socks5.host
+        if not is_ipv4(ip):
+            ip = get_ipv4_hostname(ip)
+
+        geoinfo = GeoInfo.ipv4info(ip)
+        old = (socks5.country, socks5.country_code, socks5.city)
+        new = (geoinfo["country"], geoinfo["country_code"], geoinfo["city"])
+        if old == new:
+            log.debug("Geo IP info unchanged")
+            continue
+
+        log.debug(
+            "Geo IP info changed. New country=%s, country_code=%s, city=%s",
+            geoinfo["country"], geoinfo["country_code"], geoinfo["city"]
+        )
+        db.update_geoinfo(
+            socks5.id, country=geoinfo["country"],
+            country_code=geoinfo["country_code"], city=geoinfo["city"]
+        )

@@ -23,7 +23,7 @@ def main(debug):
 @main.command()
 @click.option("-r", "--repeated", is_flag=True, help="Continuously keep verifying all servers at the interval specified in the config")
 def verify(repeated):
-    """Verify if the servers are operational"""
+    """Verify if the servers are operational."""
     try:
         verify_all(repeated)
     except KeyboardInterrupt:
@@ -37,7 +37,7 @@ def verify(repeated):
 @click.option("-p", "--password", help="Password for this socks5 server")
 @click.option("-d", "--description", help="Description for this socks5 server")
 def add(host, port, username, password, description):
-    """Add socks5 server"""
+    """Add socks5 server."""
     if username and not password or password and not username:
         log.warning(
             "Both a username and password need to be provided if the socks5"
@@ -96,16 +96,17 @@ def bulk_add(file_path, description):
         log.error("Failed to bulk add: %s", e)
         sys.exit(1)
 
-@main.command()
-def update_geoinfo():
-    """Update version of the used Maxmind geodb"""
+@main.command("update-geodb")
+def geo():
+    """Update version of the used Maxmind geodb, and update the geo IP
+    information for each existing server."""
     update_geodb()
 
 @main.command()
 @click.argument("socks5_ids", nargs=-1, required=False, type=click.INT)
 @click.option("--everything", is_flag=True, help="Delete all socks5 servers")
 def delete(socks5_ids, everything):
-    """Remove the specified socks5 servers"""
+    """Remove the specified socks5 servers."""
     if socks5_ids:
         for socksid in socks5_ids:
             log.info("Deleting socks5 server with id: %s", socksid)
@@ -131,7 +132,7 @@ def delete(socks5_ids, everything):
 @click.option("--operational", is_flag=True, help="Only export socks5 servers that were tested to be operational")
 @click.option("--export", type=click.Path(), help="Export as CSV to given file path")
 def list(country, code, city, host, operational, export):
-    """List or export all socks5 servers"""
+    """List or export all socks5 servers."""
     if not operational:
         operational = None
 

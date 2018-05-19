@@ -305,6 +305,7 @@ class Database(object):
             session.close()
 
     def delete_all_socks5(self):
+        """Clear all socks5 server from the database"""
         session = self.Session()
         try:
             session.query(Socks5).delete()
@@ -312,6 +313,24 @@ class Database(object):
         except SQLAlchemyError as e:
             raise Socks5manDatabaseError(
                 "Failed to delete all socks5 servers: %s" % e
+            )
+        finally:
+            session.close()
+
+    def update_geoinfo(self, socks5_id, country, country_code, city):
+        """Update the geoinfo fields for the given socks5 id"""
+        session = self.Session()
+        try:
+            session.query(Socks5).filter_by(id=socks5_id).update({
+                "country": country,
+                "country_code": country_code,
+                "city": city
+            })
+            session.commit()
+        except SQLAlchemyError as e:
+            raise Socks5manDatabaseError(
+                "Error while updating geo info for socks5 with ID: %s."
+                " Error: %s" % (socks5_id, e)
             )
         finally:
             session.close()
