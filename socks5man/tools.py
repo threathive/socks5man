@@ -1,5 +1,6 @@
 import logging
 import os
+import socket
 import shutil
 import time
 import urllib2
@@ -12,10 +13,14 @@ from socks5man.misc import cwd, unpack_mmdb
 log = logging.getLogger(__name__)
 db = Database()
 
-def verify_all(service=False):
+def verify_all(repeated=False):
 
     last_bandwidth = None
     bandwidth_checked = False
+    download_verified = False
+    if repeated:
+        log.info("Starting continuous verification")
+
     while True:
         for socks5 in db.list_socks5():
             socks5 = Socks5(socks5)
@@ -48,6 +53,20 @@ def verify_all(service=False):
                     if waited < cfg("socks5man", "bandwidth_interval"):
                         continue
 
+                if not download_verified:
+                    download_url = cfg("bandwidth", "download_url")
+                    try:
+                        urllib2.urlopen(download_url, timeout=5)
+                        download_verified = True
+                    except (socket.error, urllib2.URLError) as e:
+                        log.error(
+                            "Failed to download speed test file: '%s'. Please"
+                            " verify the configured file is still online!"
+                            " Without this file, it is not possible to"
+                            " approximate the bandwidth of a socsk5 server."
+                            " Error: %s", download_url, e
+                        )
+
                 bandwidth_checked = True
                 bandwidth = socks5.approx_bandwidth()
                 if bandwidth:
@@ -64,7 +83,7 @@ def verify_all(service=False):
             bandwidth_checked = False
             last_bandwidth = time.time()
 
-        if not service:
+        if not repeated:
             break
 
         time.sleep(cfg("socks5man", "verify_interval"))

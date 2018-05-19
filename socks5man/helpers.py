@@ -104,7 +104,9 @@ def validify_host_port(host, port):
         if not host:
             return None
 
-    if not isinstance(port, int):
+    try:
+        port = int(port)
+    except ValueError:
         return None
 
     if port < 1 or port > 65534:
@@ -127,17 +129,16 @@ def get_over_socks5(url, host, port, username=None, password=None, timeout=3):
         socket.socket = socks.socksocket
         response = urllib2.urlopen(url, timeout=timeout).read()
     except (socket.error, urllib2.URLError, socks.ProxyError) as e:
-        log.error("Error making HTTP GET over socsk5: %s", e)
+        log.error("Error making HTTP GET over socks5: %s", e)
     finally:
         socket.socket = socket._socketobject
     return response
 
 def approximate_bandwidth(host, port, username=None, password=None,
-                          connecttime=0, maxfail=1, times=2, timeout=10):
+                          maxfail=1, times=2, timeout=10):
     """Tries to determine the average download speed in Mbit/s.
     Higher 'times' values will result in more accurate speeds, but will
     take a longer time.
-    @param connecttime: The time it takes on average to connect to the
     specified socks5. This value is subtracted from the total time it takes
     to download a test file.
     @param maxfail: The maximum amount of times the socks5 is allowed to
@@ -148,11 +149,6 @@ def approximate_bandwidth(host, port, username=None, password=None,
     total = 0
     fails = 0
     test_url = cfg("bandwidth", "download_url")
-    try:
-        urllib2.urlopen(test_url, timeout=5)
-    except (socket.error, urllib2.URLError) as e:
-        log.error("Failed to download speed test file: %s", e)
-        return None
 
     for t in range(times):
         start = time.time()
@@ -168,13 +164,13 @@ def approximate_bandwidth(host, port, username=None, password=None,
 
         took = time.time() - start
 
-        # Take into account a connection time to get a more
-        # accurate bandwidth
-        if connecttime:
-            took -= connecttime
-
         # Calculate the approximate Mbit/s
-        speed = (len(response) / took) / 1000000 * 8
+        try:
+            speed = (len(response) / took) / 1000000 * 8
+        except ZeroDivisionError:
+            # Can be thrown if the download was instant. To still calculate
+            # a speed, use 0.001 as the time it took
+            speed = (len(response) / 0.001) / 1000000 * 8
 
         # If the used file to measure is smaller than approx 1 MB,
         # add a small amount as the small size might cause the TCP window

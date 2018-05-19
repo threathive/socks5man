@@ -60,8 +60,7 @@ class Socks5(object):
         updated in the database"""
         approx_bandwidth = approximate_bandwidth(
             self.host, self.port, username=self.username,
-            password=self.password, connecttime=self.connect_time,
-            times=cfg("bandwidth", "times"),
+            password=self.password, times=cfg("bandwidth", "times"),
             timeout=cfg("bandwidth", "timeout")
         )
         db.set_approx_bandwidth(self.id, approx_bandwidth)

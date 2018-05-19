@@ -21,11 +21,11 @@ def main(debug):
     init_loggers(level)
 
 @main.command()
-@click.option("-s", "--service", is_flag=True, help="Start a service that keeps verifying all servers at the interval specified in the config")
-def verify(service):
+@click.option("-r", "--repeated", is_flag=True, help="Continuously keep verifying all servers at the interval specified in the config")
+def verify(repeated):
     """Verify if the servers are operational"""
     try:
-        verify_all(service)
+        verify_all(repeated)
     except KeyboardInterrupt:
         log.warning("CTRL+C detected! exiting.")
         sys.exit(0)
@@ -146,14 +146,14 @@ def list(country, code, city, host, operational, export):
 
     if not export:
         print(
-            "{:<4} {:<16} {:<5} {:<16} {:<3} {:<16} {:<16} {:<16}".format(
+            "{:<4} {:<20} {:<5} {:<16} {:<12} {:<16} {:<16} {:<16}".format(
                 "ID", "Host", "Port", "Country", "Country Code", "City",
                 "Username", "Password"
             )
         )
         for socks5 in socks5s:
             print(
-                "{:<4} {:<16} {:<5} {:<16} {:<3} {:<16} {:<16} {:<16}".format(
+                "{:<4} {:<20} {:<5} {:<16} {:<12} {:<16} {:<16} {:<16}".format(
                     socks5.id, socks5.host, socks5.port, socks5.country,
                     socks5.country_code, socks5.city, socks5.username,
                     socks5.password
