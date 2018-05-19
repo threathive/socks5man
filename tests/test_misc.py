@@ -1,5 +1,5 @@
-import os
 import mock
+import os
 import tempfile
 
 from geoip2 import database as geodatabase
