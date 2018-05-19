@@ -2,11 +2,11 @@ import logging
 from datetime import datetime
 
 from socks5man.exceptions import Socks5manError, Socks5manDatabaseError
-from socks5man.misc import cwd
+from socks5man.misc import cwd, Singleton
 
 from sqlalchemy import (
     Column, Integer, String, DateTime, Boolean, Text, create_engine,
-    Float, and_
+    Float, and_, func
 )
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
@@ -67,13 +67,16 @@ class Socks5(Base):
 
 class Database(object):
 
-    def __init__(self):
-        self.connect()
+    __metaclass__ = Singleton
 
-    def connect(self):
+    def __init__(self):
+        self.connect(create=True)
+
+    def connect(self, create=False):
         self.engine = create_engine("sqlite:///%s" % cwd("socks5man.db"))
         self.Session = sessionmaker(bind=self.engine)
-        self._create()
+        if create:
+            self._create()
 
     def _create(self):
         try:
@@ -95,12 +98,15 @@ class Database(object):
         try:
             session.add(socks5)
             session.commit()
+            socks_id = socks5.id
         except SQLAlchemyError as e:
             raise Socks5manDatabaseError(
                 "Error adding new socks5 to the database: %s" % e
             )
         finally:
             session.close()
+
+        return socks_id
 
     def remove_socks5(self, id):
         """Removes the socks5 entry with the specified id"""
@@ -124,11 +130,17 @@ class Database(object):
             if operational is not None:
                 socks = socks.filter_by(operational=operational)
             if country:
-                socks = socks.filter_by(country=country)
+                socks = socks.filter(
+                    func.lower(Socks5.country) == func.lower(country)
+                )
             if country_code:
-                socks = socks.filter_by(country_code=country_code)
+                socks = socks.filter(
+                    func.lower(Socks5.country_code) == func.lower(country_code)
+                )
             if city:
-                socks = socks.filter_by(city=city)
+                socks = socks.filter(
+                    func.lower(Socks5.city) == func.lower(city)
+                )
             if host:
                 if isinstance(host, (list, tuple)):
                     socks = socks.filter(Socks5.host.in_(set(host)))
@@ -191,18 +203,25 @@ class Database(object):
         try:
             socks5 = socks5.filter_by(operational=True)
             if country:
-                socks5 = socks5.filter_by(country=country)
+                socks5 = socks5.filter(
+                    func.lower(Socks5.country) == func.lower(country)
+                )
             if country_code:
-                socks5 = socks5.filter_by(country_code=country_code)
+                socks5 = socks5.filter(
+                    func.lower(Socks5.country_code) == func.lower(country_code)
+                )
             if city:
-                socks5 = socks5.filter_by(city=city)
+                socks5 = socks5.filter(
+                    func.lower(Socks5.city) == func.lower(city)
+                )
             if min_mbps_down:
                 socks5 = socks5.filter(Socks5.bandwidth >= min_mbps_down)
             if max_connect_time:
                 socks5 = socks5.filter(Socks5.connect_time <= max_connect_time)
 
             result = socks5.order_by(
-                Socks5.last_use.asc(), Socks5.last_check.desc()
+                Socks5.last_use.asc(), Socks5.last_check.desc(),
+                Socks5.connect_time.asc(), Socks5.bandwidth.desc()
             ).limit(limit).all()
 
             if result and update_usage:
