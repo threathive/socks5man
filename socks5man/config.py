@@ -1,4 +1,5 @@
 import ConfigParser
+import os
 
 from socks5man.exceptions import Socks5ConfigError
 from socks5man.misc import cwd
@@ -44,21 +45,27 @@ class Config(object):
 
         config = ConfigParser.ConfigParser()
 
+        confpath = cwd("conf", "socks5man.conf")
+        if not os.path.isfile(confpath):
+            raise Socks5ConfigError(
+                "Cannot read config. Config file '%s' does not exist" %
+                confpath
+            )
         try:
-            config.read(cwd("conf", "socks5man.conf"))
+            config.read(confpath)
         except ConfigParser.Error as e:
             raise Socks5ConfigError(
                 "Cannot parse config file. Error: %s" % e
             )
 
         for section in config.sections():
-            if not section in self._conf:
+            if section not in self._conf:
                 raise Socks5ConfigError(
                     "Config has unknown config section '%s'. Add section to"
                     " the config class to prevent this error." % section
                 )
 
-            if not section in self._cache:
+            if section not in self._cache:
                 self._cache[section] = {}
 
             for k in config.options(section):
