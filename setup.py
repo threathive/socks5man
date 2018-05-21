@@ -16,7 +16,7 @@ setup(
         "SQLAlchemy==1.2.7",
         "click==6.6"
     ],
-    python_requires="<=2.7",
+    python_requires=">=2.7, <3.0",
     extras_require={
         ":sys_platform == 'win32'": [
             "win-inet-pton==1.0.1",
