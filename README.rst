@@ -14,5 +14,6 @@ A local database is used to lookup country and city information for a host ip.
    :alt: Codecov Coverage Status
    :target: https://codecov.io/gh/RicoVZ/socks5man
 
-This product includes GeoLite2 data created by MaxMind, available from
-<a href="http://www.maxmind.com">http://www.maxmind.com</a>.
+This product includes GeoLite2 data created by MaxMind, available from `maxmind.com`_.
+
+.. _`maxmind.com`: http://www.maxmind.com
