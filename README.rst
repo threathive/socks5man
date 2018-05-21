@@ -12,7 +12,7 @@ This product includes GeoLite2 data created by MaxMind, available from `maxmind.
    :alt: Linux and OSX Build Status
    :target: https://travis-ci.org/RicoVZ/socks5man
 
-.. image:: https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?svg=true
+.. image:: https://ci.appveyor.com/api/projects/status/le7o92n6t1glv4su?svg=true
    :alt: Windows Build Status
    :target: https://ci.appveyor.com/project/RicoVZ/socks5man
 
