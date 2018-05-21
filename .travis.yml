@@ -1,0 +1,10 @@
+language: python
+python:
+  - "2.7"
+install:
+  - python setup.py install
+  - pip install pytest mock pytest-cov codecov
+script:
+  - py.test --cov=socks5man
+after_success:
+  - codecov
