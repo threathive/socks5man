@@ -102,6 +102,12 @@ def test_validify_host_port():
     assert res7 is None
     res8 = validify_host_port("example.com", "0")
     assert res8 is None
+    res9 = validify_host_port("example.com", "doges")
+    assert res9 is None
+    res10 = validify_host_port("example.com", None)
+    assert res10 is None
+    res11 = validify_host_port(None, 8132)
+    assert res11 is None
 
 @mock.patch("socks5man.helpers.socket")
 @mock.patch("urllib2.urlopen")
@@ -181,3 +187,29 @@ def test_approximate_bandwidth_0_87(mg, mc, mt):
         "8.8.8.8", 1337, username="doge", password="suchwow", timeout=10
     )
     assert round(speed, 2) == 0.87
+
+@mock.patch("time.time")
+@mock.patch("socks5man.helpers.cfg")
+@mock.patch("socks5man.helpers.get_over_socks5")
+def test_approximate_bandwidth_maxfail(mg, mc, mt):
+    data = "A"*1000000
+    mg.side_effect = None, data
+    mc.return_value = "http://example.com/1MB.bin"
+    mt.side_effect = 1, 1, 10.1
+    speed = approximate_bandwidth(
+        "8.8.8.8", 1337, username="doge", password="suchwow", timeout=10
+    )
+    assert round(speed, 2) == 0.44
+
+@mock.patch("time.time")
+@mock.patch("socks5man.helpers.cfg")
+@mock.patch("socks5man.helpers.get_over_socks5")
+def test_approximate_bandwidth_smallfile(mg, mc, mt):
+    data = "A"*100000
+    mg.side_effect = data, data
+    mc.return_value = "http://example.com/1MB.bin"
+    mt.side_effect = 1, 1, 1, 1
+    speed = approximate_bandwidth(
+        "8.8.8.8", 1337, username="doge", password="suchwow", timeout=10
+    )
+    assert speed == 880.0

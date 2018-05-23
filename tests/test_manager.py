@@ -168,6 +168,12 @@ class TestManager(object):
         assert len(all_socks) == 1
         all_socks[0].description == "Many wow"
 
+    def test_add_invalid_entry(self):
+        create_cwd(path=cwd())
+        m = Manager()
+        with pytest.raises(Socks5CreationError):
+            m.add("u8a8asd8a8sdad.cheese", -9812381, description="Many wow")
+
     def test_add_hostname(self):
         create_cwd(path=cwd())
         m = Manager()
@@ -233,6 +239,21 @@ class TestManager(object):
         m = Manager()
         assert m.bulk_add(servers) == 1
 
+    def test_bulk_add_faultyinfo(self):
+        create_cwd(path=cwd())
+        servers = [
+            {
+                "host": "98asdj9a8sdj9adsuiuiuiasd.cheese",
+                "port": 4242
+            },
+            {
+                "host": "example.com",
+                "port": 9133
+            }
+        ]
+        m = Manager()
+        assert m.bulk_add(servers) == 1
+
     def test_bulk_add_invalid_auth_usage(self):
         create_cwd(path=cwd())
         m = Manager()
@@ -280,6 +301,24 @@ class TestManager(object):
         assert m.bulk_add(servers) == 2
         assert self.db.view_socks5(host="8.8.8.8", port=4242).port == 4242
 
+    def test_bulk_add_description(self):
+        create_cwd(path=cwd())
+        servers = [
+            {
+                "host": "8.8.8.8",
+                "port": 4242
+            },
+            {
+                "host": "example.com",
+                "port": 9133
+            }
+        ]
+        m = Manager()
+        assert m.bulk_add(servers, description="Very wow") == 2
+        s = self.db.view_socks5(host="8.8.8.8", port=4242)
+        assert s.port == 4242
+        assert s.description == "Very wow"
+
     def test_bulk_add_auth(self):
         create_cwd(path=cwd())
         servers = [
@@ -299,6 +338,22 @@ class TestManager(object):
         allsocks = self.db.list_socks5()
         assert allsocks[0].username == "hello"
         assert allsocks[0].password == "bye"
+
+    def test_bulk_add_nonew(self):
+        create_cwd(path=cwd())
+        servers = [
+            {
+                "host": "Shouldnotexistsstuff789as7h8asdj8asd.tosti",
+                "port": 4242
+            },
+            {
+                "host": "example.com",
+                "port": None
+            }
+        ]
+        m = Manager()
+        with pytest.raises(Socks5CreationError):
+            m.bulk_add(servers)
 
     def test_delete_socks5(self):
         self.db.add_socks5(

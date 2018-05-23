@@ -47,6 +47,27 @@ class TestSocks5(object):
         assert s.last_check is None
         assert isinstance(s.added_on, datetime.datetime)
 
+    def test_attrs_invalid(self):
+        self.db.add_socks5(
+            "8.8.8.8", 1337, "germany", "DE",
+            city="Frankfurt", operational=True, username="doge",
+            password="wow", description="Such wow, many socks5"
+        )
+        self.db.set_approx_bandwidth(1, 10.55)
+        self.db.set_connect_time(1, 0.07)
+        db_socks5 = self.db.view_socks5(1)
+        db_socks5.host = ""
+        db_socks5.country = ""
+        db_socks5.city = ""
+        db_socks5.username = ""
+        db_socks5.description = ""
+        s = Socks5(db_socks5)
+        assert s.host is None
+        assert s.country is None
+        assert s.city is None
+        assert s.username is None
+        assert s.description is None
+
     @mock.patch("socks5man.socks5.get_over_socks5")
     def test_verify(self, mg):
         create_cwd(cwd())
@@ -206,3 +227,23 @@ class TestSocks5(object):
         assert d["password"] == "wow"
         assert d["description"] == "Such wow, many socks5"
         assert d["added_on"] == socks5.added_on.strftime("%Y-%m-%d %H:%M:%S")
+
+    def test_repr(self):
+        self.db.add_socks5(
+            "example.com", 1337, "germany", "DE",
+            city="Frankfurt", operational=False, username="doge",
+            password="wow", description="Such wow, many socks5"
+        )
+        s = self.db.view_socks5(1)
+        socks5 = Socks5(s)
+        assert repr(socks5) == "<Socks5(host=example.com, port=1337, country=germany, authenticated=True)>"
+
+    def test_repr_nonauth(self):
+        self.db.add_socks5(
+            "example.com", 1337, "germany", "DE",
+            city="Frankfurt", operational=False,
+            description="Such wow, many socks5"
+        )
+        s = self.db.view_socks5(1)
+        socks5 = Socks5(s)
+        assert repr(socks5) == "<Socks5(host=example.com, port=1337, country=germany, authenticated=False)>"

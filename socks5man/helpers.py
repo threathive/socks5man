@@ -99,10 +99,16 @@ def validify_host_port(host, port):
     """Returns a dict with ip and port if both are valid, otherwise
     returns None"""
 
+    if not host:
+        return None
+
     if not is_ipv4(host):
         host = get_ipv4_hostname(host)
         if not host:
             return None
+
+    if not port:
+        return None
 
     try:
         port = int(port)

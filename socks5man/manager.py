@@ -57,7 +57,7 @@ class Manager(object):
         valid_entry = validify_host_port(host, port)
         if not valid_entry:
             raise Socks5CreationError(
-                "Invalid host or port used. Invalid IP, non-existing hostname "
+                "Invalid host or port used. Invalid IP, non-existing hostname"
                 ", or an invalid port specified. Host: %s, port: %s" % (
                     host, port
                 )
@@ -84,8 +84,6 @@ class Manager(object):
             city=entry.city, username=entry.username, password=entry.password,
             description=description
         )
-        if not socksid:
-            return None
 
         entry["id"] = socksid
         return entry
@@ -121,7 +119,7 @@ class Manager(object):
                 entry["description"] = description
 
             new_entry = {
-                "host": entry.get("host"),
+                "host": entry["host"],
                 "port": valid_entry.port,
                 "country": None,
                 "country_code": None,
@@ -129,7 +127,7 @@ class Manager(object):
                 "username": username,
                 "password": password,
                 "operational": False,
-                "description": None
+                "description": entry.get("description")
             }
             new_entry.update(GeoInfo.ipv4info(valid_entry.ip))
             new.append(new_entry)
