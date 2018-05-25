@@ -83,7 +83,7 @@ class GeoInfo(object):
                 result["country_code"] = geodata.country.iso_code
             if geodata.city.name:
                 result["city"] = geodata.city.name
-        except GeoIP2Error:
+        except (GeoIP2Error, ValueError):
             return result
 
         return result

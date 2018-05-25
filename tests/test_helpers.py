@@ -1,5 +1,5 @@
 import mock
-
+import urllib2
 
 from socks5man.helpers import (
     Dictionary, is_ipv4, is_reserved_ipv4, GeoInfo, get_ipv4_hostname,
@@ -34,6 +34,8 @@ def test_is_reserve_ipv4():
     ]
     for ip in public:
         assert not is_reserved_ipv4(ip)
+
+    assert not is_reserved_ipv4("NoAnIPADDRessd124")
 
 def test_is_ipv4():
     ipv4 = [
@@ -73,6 +75,28 @@ class TestGeoInfo(object):
         assert res["country"] == "United States"
         assert res["country_code"] == "US"
         assert res["city"] == "Norwell"
+
+    def test_ipv4info_unknown(self):
+        tmppath = self.tempfile.mkdtemp()
+        set_cwd(tmppath)
+        create_cwd(tmppath)
+
+        geo = GeoInfo()
+        res = geo.ipv4info("10.0.0.5")
+        assert res["country"] == "unknown"
+        assert res["country_code"] == "unknown"
+        assert res["city"] == "unknown"
+
+    def test_ipv4info_invalid(self):
+        tmppath = self.tempfile.mkdtemp()
+        set_cwd(tmppath)
+        create_cwd(tmppath)
+
+        geo = GeoInfo()
+        res = geo.ipv4info("8adna87dasd87asd")
+        assert res["country"] == "unknown"
+        assert res["country_code"] == "unknown"
+        assert res["city"] == "unknown"
 
 def test_get_ipv4_hostname():
     ip = get_ipv4_hostname("example.com")
@@ -128,6 +152,23 @@ def test_get_over_socks5(ms, mu, mss):
     )
     mu.assert_called_once_with("http://example.com", timeout=10)
     assert res == "many content, such wow"
+    assert mss.socket == "socket"
+
+@mock.patch("socks5man.helpers.socket")
+@mock.patch("urllib2.urlopen")
+@mock.patch("socks5man.helpers.socks")
+def test_get_over_socks5_fail(ms, mu, mss):
+    mss.socket = "DOGE"
+    mss._socketobject = "socket"
+    httpresponse = mock.MagicMock()
+    httpresponse.read.side_effect = urllib2.URLError("Error")
+    mu.return_value = httpresponse
+    ms.socksocket = "socksocket"
+    res = get_over_socks5(
+        "http://example.com", "8.8.8.8", 1337, username="many",
+        password="doge", timeout=10
+    )
+    assert res is None
     assert mss.socket == "socket"
 
 @mock.patch("time.time")
@@ -213,3 +254,15 @@ def test_approximate_bandwidth_smallfile(mg, mc, mt):
         "8.8.8.8", 1337, username="doge", password="suchwow", timeout=10
     )
     assert speed == 880.0
+
+@mock.patch("time.time")
+@mock.patch("socks5man.helpers.cfg")
+@mock.patch("socks5man.helpers.get_over_socks5")
+def test_approximate_bandwidth_failed(mg, mc, mt):
+    mg.side_effect = None, None
+    mc.return_value = "http://example.com/1MB.bin"
+    speed = approximate_bandwidth(
+        "8.8.8.8", 1337, username="doge", password="suchwow", timeout=10,
+        times=2, maxfail=1
+    )
+    assert speed is None

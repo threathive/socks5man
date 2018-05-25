@@ -1,7 +1,7 @@
 import logging
-import platform
 import socket
 import socks
+import sys
 import time
 
 from socks5man.config import cfg
@@ -14,7 +14,7 @@ from socks5man.helpers import (
 log = logging.getLogger(__name__)
 
 # Required for socks connecting to work on Windows
-if platform.system().lower() == "windows":
+if sys.platform == "win32":
     import win_inet_pton
 
 db = Database()

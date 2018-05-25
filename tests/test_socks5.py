@@ -1,6 +1,7 @@
 import datetime
 import mock
 import socket
+import sys
 
 from socks5man.database import Database
 from socks5man.misc import set_cwd, create_cwd, cwd
@@ -247,3 +248,9 @@ class TestSocks5(object):
         s = self.db.view_socks5(1)
         socks5 = Socks5(s)
         assert repr(socks5) == "<Socks5(host=example.com, port=1337, country=germany, authenticated=False)>"
+
+    def test_win_imported_win_inet_pton(self):
+        if sys.platform == "win32":
+            assert "win_inet_pton" in sys.modules
+        else:
+            assert "win_inet_pton" not in sys.modules

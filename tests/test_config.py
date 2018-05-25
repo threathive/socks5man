@@ -24,7 +24,7 @@ class TestConfig(object):
         self.db = Database()
         self.db.connect(create=True)
         Config._cache = {}
-        self.confbackup = copy.copy(Config._conf)
+        self.confbackup = copy.deepcopy(Config._conf)
 
     def teardown(self):
         Config._conf = self.confbackup
@@ -114,3 +114,10 @@ class TestConfig(object):
         assert confbool("On")
         assert not confbool("off")
         assert not confbool("0")
+
+    def test_config_read_clear_cache(self):
+        create_cwd(cwd())
+        Config._cache = {"test": "test"}
+        Config().read()
+        assert len(Config._cache) > 0
+        assert "test" not in Config._cache

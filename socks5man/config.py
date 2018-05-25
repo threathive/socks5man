@@ -40,8 +40,8 @@ class Config(object):
     }
 
     def read(self):
-        if self._cache:
-            self._cache = {}
+        if Config._cache:
+            Config._cache = {}
 
         config = ConfigParser.ConfigParser()
 
@@ -65,8 +65,8 @@ class Config(object):
                     " the config class to prevent this error." % section
                 )
 
-            if section not in self._cache:
-                self._cache[section] = {}
+            if section not in Config._cache:
+                Config._cache[section] = {}
 
             for k in config.options(section):
                 option_type = self._conf[section].get(k)
@@ -88,7 +88,7 @@ class Config(object):
                         )
                     )
 
-                self._cache[section][k] = value
+                Config._cache[section][k] = value
 
 def cfg(*args):
     if not Config._cache:
