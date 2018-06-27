@@ -3,7 +3,13 @@ import socket
 import socks
 import struct
 import time
-import urllib2
+
+# Python 3 vs 2 import
+try:
+    from urllib.request import urlopen
+    from urllib.error import URLError
+except ImportError:
+    from urllib2 import urlopen, URLError
 
 from socks5man.config import cfg
 from socks5man.constants import IANA_RESERVERD_IPV4_RANGES
@@ -133,8 +139,8 @@ def get_over_socks5(url, host, port, username=None, password=None, timeout=3):
     response = None
     try:
         socket.socket = socks.socksocket
-        response = urllib2.urlopen(url, timeout=timeout).read()
-    except (socket.error, urllib2.URLError, socks.ProxyError) as e:
+        response = urlopen(url, timeout=timeout).read()
+    except (socket.error, URLError, socks.ProxyError) as e:
         log.error("Error making HTTP GET over socks5: %s", e)
     finally:
         socket.socket = socket._socketobject

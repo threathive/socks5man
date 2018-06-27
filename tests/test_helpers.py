@@ -1,5 +1,11 @@
 import mock
-import urllib2
+
+# Python 3 vs 2 import
+try:
+    from urllib.request import urlopen
+    from urllib.error import URLError
+except ImportError:
+    from urllib2 import urlopen, URLError
 
 from socks5man.helpers import (
     Dictionary, is_ipv4, is_reserved_ipv4, GeoInfo, get_ipv4_hostname,
@@ -134,7 +140,7 @@ def test_validify_host_port():
     assert res11 is None
 
 @mock.patch("socks5man.helpers.socket")
-@mock.patch("urllib2.urlopen")
+@mock.patch("socks5man.helpers.urlopen")
 @mock.patch("socks5man.helpers.socks")
 def test_get_over_socks5(ms, mu, mss):
     mss.socket = "DOGE"
@@ -155,13 +161,13 @@ def test_get_over_socks5(ms, mu, mss):
     assert mss.socket == "socket"
 
 @mock.patch("socks5man.helpers.socket")
-@mock.patch("urllib2.urlopen")
+@mock.patch("socks5man.helpers.urlopen")
 @mock.patch("socks5man.helpers.socks")
 def test_get_over_socks5_fail(ms, mu, mss):
     mss.socket = "DOGE"
     mss._socketobject = "socket"
     httpresponse = mock.MagicMock()
-    httpresponse.read.side_effect = urllib2.URLError("Error")
+    httpresponse.read.side_effect = URLError("Error")
     mu.return_value = httpresponse
     ms.socksocket = "socksocket"
     res = get_over_socks5(

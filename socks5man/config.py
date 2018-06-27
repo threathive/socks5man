@@ -1,5 +1,12 @@
-import ConfigParser
 import os
+
+# Python 3 vs 2 import
+try:
+    from configparser import ConfigParser
+    from configparser import Error as ConfigParserError
+except ImportError:
+    from ConfigParser import ConfigParser
+    from ConfigParser import Error as ConfigParserError
 
 from socks5man.exceptions import Socks5ConfigError
 from socks5man.misc import cwd
@@ -43,7 +50,7 @@ class Config(object):
         if Config._cache:
             Config._cache = {}
 
-        config = ConfigParser.ConfigParser()
+        config = ConfigParser()
 
         confpath = cwd("conf", "socks5man.conf")
         if not os.path.isfile(confpath):
@@ -53,7 +60,7 @@ class Config(object):
             )
         try:
             config.read(confpath)
-        except ConfigParser.Error as e:
+        except ConfigParserError as e:
             raise Socks5ConfigError(
                 "Cannot parse config file. Error: %s" % e
             )

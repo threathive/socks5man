@@ -3,7 +3,13 @@ import os
 import socket
 import shutil
 import time
-import urllib2
+
+# Python 3 vs 2 import
+try:
+    from urllib.request import urlopen
+    from urllib.error import URLError
+except ImportError:
+    from urllib2 import urlopen, URLError
 
 from socks5man.config import cfg
 from socks5man.database import Database
@@ -57,9 +63,9 @@ def verify_all(repeated=False):
                 if not download_verified:
                     download_url = cfg("bandwidth", "download_url")
                     try:
-                        urllib2.urlopen(download_url, timeout=5)
+                        urlopen(download_url, timeout=5)
                         download_verified = True
-                    except (socket.error, urllib2.URLError) as e:
+                    except (socket.error, URLError) as e:
                         log.error(
                             "Failed to download speed test file: '%s'. Please"
                             " verify the configured file is still online!"
@@ -99,8 +105,8 @@ def update_geodb():
         current_version = fp.read()
 
     try:
-        latest_version = urllib2.urlopen(cfg("geodb", "geodb_md5_url")).read()
-    except urllib2.URLError as e:
+        latest_version = urlopen(cfg("geodb", "geodb_md5_url")).read()
+    except URLError as e:
         log.error("Error retrieving latest geodb version hash: %s", e)
         return
 
@@ -117,8 +123,8 @@ def update_geodb():
     try:
         url = cfg("geodb", "geodb_url")
         log.info("Downloading latest version: '%s'", url)
-        mmdbtar = urllib2.urlopen(url).read()
-    except urllib2.URLError as e:
+        mmdbtar = urlopen(url).read()
+    except URLError as e:
         log.error(
             "Failed to download new mmdb tar. Is the URL correct? %s", e
         )

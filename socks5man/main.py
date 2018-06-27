@@ -48,7 +48,7 @@ def add(host, port, username, password, description):
     try:
         entry = m.add(
             host, port, username=username, password=password,
-            description=unicode(description)
+            description=description
         )
     except Socks5manError as e:
         log.error("Failed to add socks5 server: %s", e)
