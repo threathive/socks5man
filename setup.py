@@ -11,12 +11,13 @@ if sys.version[0] != "2":
 
 setup(
     name="Socks5man",
-    version="0.1.0",
+    version="0.1",
     author="Ricardo van Zutphen",
     author_email="ricardo@cuckoo.sh",
     packages=[
         "socks5man",
     ],
+    keywords="socks5man socks5 tester management library verification",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Console",
