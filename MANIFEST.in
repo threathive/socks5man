@@ -1,2 +1,6 @@
 graft socks5man
 recursive-exclude * *.pyc *.pyo
+include socks5man/setupdata/conf/socks5man.conf
+include socks5man/setupdata/geodb/extracted/.gitignore
+include socks5man/setupdata/geodb/.version
+include socks5man/setupdata/geodb/geodblite.tar.gz
