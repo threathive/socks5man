@@ -39,7 +39,7 @@ setup(
     description="SOCKS5 server management tool and library",
     long_description=open("README.rst", "rb").read(),
     include_package_data=True,
-    url="https://socks5man.readthedocs.io",
+    url="https://github.com/RicoVZ/socks5man",
     install_requires=[
         "PySocks==1.5.7",
         "geoip2==2.8.0",

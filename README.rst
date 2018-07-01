@@ -6,6 +6,8 @@ by country, city, average connection time, and bandwidth, using the Python libra
 The library also allows for manual operationality, bandwidth, and connection time tests.
 A local database is used to lookup country and city information for a host ip.
 
+The documentation can be found at: `https://socks5man.readthedocs.io`_.
+
 This product includes GeoLite2 data created by MaxMind, available from `maxmind.com`_.
 
 .. image:: https://api.travis-ci.org/RicoVZ/socks5man.svg?branch=master
@@ -21,3 +23,4 @@ This product includes GeoLite2 data created by MaxMind, available from `maxmind.
    :target: https://codecov.io/gh/RicoVZ/socks5man
 
 .. _`maxmind.com`: http://www.maxmind.com
+.. _`https://socks5man.readthedocs.io`: https://socks5man.readthedocs.io/
