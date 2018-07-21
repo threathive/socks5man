@@ -2,7 +2,6 @@ import copy
 import os
 import pytest
 
-import socks5man
 from socks5man.config import Config, cfg, confbool
 from socks5man.database import Database
 from socks5man.exceptions import Socks5ConfigError
@@ -17,7 +16,6 @@ class TestConfig(object):
 
     def teardown_class(self):
         self.tempfile.clean()
-        reload(socks5man.config)
 
     def setup(self):
         set_cwd(self.tempfile.mkdtemp())

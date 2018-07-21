@@ -474,6 +474,42 @@ class TestSocks5(object):
         self.db.delete_all_socks5()
         assert len(self.db.list_socks5()) == 0
 
+    def test_bulk_delete_socks5(self):
+        ids = []
+        for x in range(25):
+            i = self.db.add_socks5(
+                "9.8.8.8", x, "Germany", "DE",
+                operational=False
+            )
+            if x <= 12:
+                ids.append(i)
+        assert len(self.db.list_socks5()) == 25
+        self.db.bulk_delete_socks5(ids)
+        assert len(self.db.list_socks5()) == 12
+        for i in ids:
+            assert self.db.view_socks5(socks5_id=i) is None
+
+    def test_big_bulk_delete(self):
+        bulk_socks = [{
+            "host": "8.8.8.8",
+            "port": 4242,
+            "country": "Germany",
+            "country_code": "DE"
+        } for x in range(2000)]
+
+        self.db.bulk_add_socks5(bulk_socks)
+        id1 = self.db.add_socks5(
+            "9.8.8.8", 4242, "Germany", "DE",
+            operational=True
+        )
+        assert len(self.db.list_socks5()) == 2001
+        self.db.bulk_delete_socks5(
+            [s.id for s in self.db.list_socks5(operational=False)]
+        )
+        workingsocks = self.db.list_socks5()
+        assert len(workingsocks) == 1
+        assert workingsocks[0].operational
+
     def test_update_geoinfo(self):
         id1 = self.db.add_socks5(
             "9.8.8.8", 4242, "Germany", "DE",

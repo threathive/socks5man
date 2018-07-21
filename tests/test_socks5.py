@@ -189,7 +189,7 @@ class TestSocks5(object):
         )
         socksocket.settimeout.assert_called_once_with(3)
         socksocket.connect.assert_called_once_with(
-            ("speedtest.xs4all.net", 80)
+            ("api.ipify.org", 80)
         )
         assert self.db.view_socks5(1).connect_time == res
 
