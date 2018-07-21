@@ -19,13 +19,17 @@ After installing, run Socks5man once to created its working directory (.socks5ma
     (venv)$ socks5man
     Usage: socks5man [OPTIONS] COMMAND [ARGS]...
 
+      This tool can be used to manage your socks5
+      servers. Each subcommand has its own help
+      information.
+
     Options:
       -d, --debug  Enable debug logging
       --help       Show this message and exit.
 
     Commands:
       add           Add socks5 server.
-      bulk_add      Bulk add socks5 servers from CSV file.
+      bulk-add      Bulk add socks5 servers from CSV file.
       delete        Remove the specified socks5 servers.
       list          List or export all socks5 servers.
       update-geodb  Update version of the used Maxmind geodb, and...
