@@ -14,7 +14,7 @@ from socks5man.socks5 import Socks5
 log = logging.getLogger(__name__)
 db = Database()
 
-def verify_all(repeated=False):
+def verify_all(repeated=False, operational=None, unverified=None):
 
     last_bandwidth = None
     bandwidth_checked = False
@@ -23,14 +23,18 @@ def verify_all(repeated=False):
         log.info("Starting continuous verification")
 
     while True:
-        for socks5 in db.list_socks5():
+        socks5_list = db.list_socks5(
+            operational=operational, unverified=unverified
+        )
+        log.debug("Verifying %s socks5 servers", len(socks5_list))
+        for socks5 in socks5_list:
             socks5 = Socks5(socks5)
 
             log.info(
                 "Testing socks5 server: '%s:%s'", socks5.host, socks5.port
             )
             if socks5.verify():
-                log.debug("Operationality check: OK")
+                log.info("Operationality check: OK")
             else:
                 log.warning(
                     "Operationality check (%s:%s): FAILED",
@@ -47,8 +51,10 @@ def verify_all(repeated=False):
                         "Connection time measurement failed for: '%s:%s'",
                         socks5.host, socks5.port
                     )
+                    continue
 
             if cfg("bandwidth", "enabled"):
+                print "BLABLA 2"
                 if last_bandwidth:
                     waited = time.time() - last_bandwidth
                     if waited < cfg("socks5man", "bandwidth_interval"):
@@ -67,6 +73,7 @@ def verify_all(repeated=False):
                             " approximate the bandwidth of a socsk5 server."
                             " Error: %s", download_url, e
                         )
+                        continue
 
                 bandwidth_checked = True
                 bandwidth = socks5.approx_bandwidth()
