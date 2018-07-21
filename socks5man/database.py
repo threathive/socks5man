@@ -122,7 +122,7 @@ class Database(object):
             session.close()
 
     def list_socks5(self, country=None, country_code=None, city=None,
-                    host=None, operational=None):
+                    host=None, operational=None, unverified=None):
         """Return a list of socks5 servers matching the filters"""
         session = self.Session()
         socks = session.query(Socks5)
@@ -141,6 +141,8 @@ class Database(object):
                 socks = socks.filter(
                     func.lower(Socks5.city) == func.lower(city)
                 )
+            if unverified:
+                socks = socks.filter_by(last_check=None)
             if host:
                 if isinstance(host, (list, tuple)):
                     socks = socks.filter(Socks5.host.in_(set(host)))
@@ -334,3 +336,20 @@ class Database(object):
             )
         finally:
             session.close()
+
+    def bulk_delete_socks5(self, ids_list):
+        """Delete all socks5s specified by their ids in the list
+        @param ids_list: A list of socks5 ids to delete"""
+        chunk = 100
+        try:
+            for c in xrange(0, len(ids_list), chunk):
+                self.engine.execute(
+                    Socks5.__table__.delete().where(
+                        Socks5.id.in_(ids_list[c:c+chunk])
+                    )
+                )
+        except SQLAlchemyError as e:
+            raise Socks5manDatabaseError(
+                "Error while trying to bulk-delete multiple socks5s."
+                " Error: %s" % e
+            )
