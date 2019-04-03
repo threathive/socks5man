@@ -1,8 +1,6 @@
 import logging
+import os
 from datetime import datetime
-
-from socks5man.exceptions import Socks5manError, Socks5manDatabaseError
-from socks5man.misc import cwd, Singleton
 
 from sqlalchemy import (
     Column, Integer, String, DateTime, Boolean, Text, create_engine,
@@ -12,9 +10,19 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from socks5man.exceptions import Socks5manError, Socks5manDatabaseError
+from socks5man.misc import cwd, Singleton
+
 log = logging.getLogger(__name__)
 
 Base = declarative_base()
+
+SCHEMA_VERSION = "2b221e84eb82"
+
+class AlembicVersion(Base):
+    __tablename__ = "alembic_version"
+
+    version_num = Column(String(32), nullable=False, primary_key=True)
 
 class Socks5(Base):
     __tablename__ = "socks5s"
@@ -76,13 +84,33 @@ class Database(object):
         self.engine = create_engine("sqlite:///%s" % cwd("socks5man.db"))
         self.Session = sessionmaker(bind=self.engine)
         if create:
-            self._create()
+            if not os.path.exists(cwd("socks5man.db")):
+                self._create()
+            elif not self.engine.dialect.has_table(
+                    self.engine, AlembicVersion.__tablename__
+            ):
+                AlembicVersion.__table__.create(self.engine)
 
     def _create(self):
+        ses = self.Session()
         try:
             Base.metadata.create_all(self.engine)
+            v = AlembicVersion()
+            v.version_num = SCHEMA_VERSION
+            ses.add(v)
+            ses.commit()
         except SQLAlchemyError as e:
             raise Socks5manError("Failed to created database tables: %s" % e)
+        finally:
+            ses.close()
+
+    def db_migratable(self):
+        ses = self.Session()
+        try:
+            v = ses.query(AlembicVersion.version_num).first()
+            return v is None or v.version_num != SCHEMA_VERSION
+        finally:
+            ses.close()
 
     def add_socks5(self, host, port, country, country_code, operational=False,
                    city=None, username=None, password=None, description=None):

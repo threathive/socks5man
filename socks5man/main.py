@@ -3,12 +3,14 @@ import csv
 import logging
 import os
 import sys
+import subprocess
 
-from socks5man.database import Database
+from socks5man.database import Database, SCHEMA_VERSION
 from socks5man.exceptions import Socks5manError
 from socks5man.logs import init_loggers
 from socks5man.manager import Manager
 from socks5man.tools import verify_all, update_geodb
+from socks5man.misc import cwd
 
 
 log = logging.getLogger(__name__)
@@ -17,13 +19,25 @@ db = Database()
 
 @click.group()
 @click.option("-d", "--debug", is_flag=True, help="Enable debug logging")
-def main(debug):
+@click.pass_context
+def main(ctx, debug):
     """This tool can be used to manage your socks5 servers.
     Each subcommand has its own help information."""
     level = logging.INFO
     if debug:
         level = logging.DEBUG
     init_loggers(level)
+
+    if db.db_migratable():
+        log.error(
+            "Database schema version mismatch. Expected: %s. Optionally make "
+            "a backup of '%s' and then apply automatic database migration "
+            "by using: 'socks5man migrate'",
+            SCHEMA_VERSION, cwd("socks5man.db")
+        )
+
+        if ctx.invoked_subcommand != "migrate":
+            exit(1)
 
 @main.command()
 @click.option("-r", "--repeated", is_flag=True, help="Continuously keep verifying all servers at the interval specified in the config")
@@ -233,3 +247,22 @@ def list(country, code, city, host, operational, non_operational, count,
                 header = False
 
             csv_w.writerow(socks5_d.values())
+
+
+@main.command()
+@click.option("--revision", default="head", help="Migrate to a specific version")
+def migrate(revision):
+    if not db.db_migratable():
+        log.info("Database schema is already at the latest version")
+        exit(0)
+
+    try:
+        subprocess.check_call(
+            ["alembic", "upgrade", revision],
+            cwd=cwd("db_migration", internal=True)
+        )
+    except subprocess.CalledProcessError as e:
+        log.exception("Database migration failed. %s", e)
+        exit(1)
+
+    log.info("Database migration successful!")

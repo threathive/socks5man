@@ -9,6 +9,7 @@ import socks5man
 _path = None
 
 def create_cwd(path=None):
+    ignore = ["db_migration"]
     if not path:
         path = _path
 
@@ -16,7 +17,7 @@ def create_cwd(path=None):
         os.mkdir(path)
 
     for dir in os.listdir(cwd(internal=True)):
-        if not os.path.exists(cwd(dir)):
+        if dir not in ignore and not os.path.exists(cwd(dir)):
             shutil.copytree(cwd(dir, internal=True), cwd(dir))
 
     unpack_mmdb(

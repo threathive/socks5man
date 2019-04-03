@@ -13,7 +13,7 @@ setup(
     name="Socks5man",
     version="0.1.1",
     author="Ricardo van Zutphen",
-    author_email="ricardo@cuckoo.sh",
+    author_email="ricardo@hatching.io",
     packages=[
         "socks5man",
     ],
@@ -44,7 +44,8 @@ setup(
         "PySocks==1.5.7",
         "geoip2==2.8.0",
         "SQLAlchemy>=1.0.8, <=1.2.7",
-        "click==6.6"
+        "click==6.6",
+        "alembic>=1.0.7, <1.1",
     ],
     python_requires=">=2.7, <3.0",
     extras_require={

@@ -4,3 +4,7 @@ include socks5man/setupdata/conf/socks5man.conf
 include socks5man/setupdata/geodb/extracted/.gitignore
 include socks5man/setupdata/geodb/.version
 include socks5man/setupdata/geodb/geodblite.tar.gz
+include socks5man/setupdata/db_migration/alembic.ini
+include socks5man/setupdata/db_migration/env.py
+include socks5man/setupdata/db_migration/script.py.mako
+include socks5man/setupdata/db_migration/versions/add_db_schema_versioning.py
