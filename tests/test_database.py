@@ -1,11 +1,12 @@
-import pytest
 import time
 
-from socks5man.database import Database
-from socks5man.exceptions import Socks5manDatabaseError
-from socks5man.misc import set_cwd, create_cwd, cwd
+import pytest
 
+from socks5man.database import Database, AlembicVersion, SCHEMA_VERSION
+from socks5man.exceptions import Socks5manDatabaseError
+from socks5man.misc import set_cwd
 from tests.helpers import CleanedTempFile
+
 
 class TestSocks5(object):
     def setup_class(self):
@@ -554,3 +555,28 @@ class TestSocks5(object):
             self.db.update_geoinfo(
                 id1, country="France", country_code=None, city="Paris"
             )
+
+    def test_schema_latest_version(self):
+        ses = self.db.Session()
+        try:
+            v = ses.query(AlembicVersion.version_num).first()
+            assert v.version_num == SCHEMA_VERSION
+        finally:
+            ses.close()
+
+    def test_db_migratable_true(self):
+        ses = self.db.Session()
+        try:
+            v = ses.query(AlembicVersion).first()
+            v.version_num = "sdfsdfsf"
+            ses.add(v)
+            ses.commit()
+        finally:
+            ses.close()
+
+        assert self.db.db_migratable()
+
+    def test_db_migratable_false(self):
+        assert not self.db.db_migratable()
+
+
