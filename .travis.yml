@@ -20,7 +20,7 @@ before_install:
     fi
 install:
   - python setup.py install
-  - pip install pytest>=3.6 mock pytest-cov codecov
+  - pip install pytest>=3.6 mock pytest-cov<2.6.0 codecov
 script:
   - py.test --cov=socks5man
 after_success:
