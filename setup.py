@@ -11,7 +11,7 @@ if sys.version[0] != "2":
 
 setup(
     name="Socks5man",
-    version="0.1.1",
+    version="0.1.3",
     author="Ricardo van Zutphen",
     author_email="ricardo@hatching.io",
     packages=[
@@ -42,8 +42,8 @@ setup(
     url="https://github.com/RicoVZ/socks5man",
     install_requires=[
         "PySocks==1.5.7",
-        "geoip2==2.8.0",
-        "SQLAlchemy>=1.0.8, <=1.2.7",
+        "geoip2==2.9.0",
+        "SQLAlchemy>=1.3.3, <1.4",
         "click==6.6",
         "alembic>=1.0.7, <1.1",
     ],
