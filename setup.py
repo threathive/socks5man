@@ -13,7 +13,7 @@ setup(
     install_requires=[
         "PySocks==1.5.7",
         "geoip2==2.8.0",
-        "SQLAlchemy==1.2.7",
+        "SQLAlchemy==1.3.3",
         "click==6.6"
     ],
     python_requires=">=2.7, <3.0",
