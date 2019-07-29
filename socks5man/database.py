@@ -150,7 +150,8 @@ class Database(object):
             session.close()
 
     def list_socks5(self, country=None, country_code=None, city=None,
-                    host=None, operational=None, unverified=None):
+                    host=None, operational=None, unverified=None,
+                    description=None):
         """Return a list of socks5 servers matching the filters"""
         session = self.Session()
         socks = session.query(Socks5)
@@ -176,6 +177,8 @@ class Database(object):
                     socks = socks.filter(Socks5.host.in_(set(host)))
                 else:
                     socks = socks.filter_by(host=host)
+            if description:
+                socks = socks.filter_by(func.lower(Socks5.description)=func.lower(description))
             socks = socks.all()
             for s in socks:
                 session.expunge(s)
