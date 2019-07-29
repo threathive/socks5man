@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 Base = declarative_base()
 
-SCHEMA_VERSION = "2b221e84eb82"
+SCHEMA_VERSION = "2910ee00d182"
 
 
 class AlembicVersion(Base):
@@ -44,6 +44,7 @@ class Socks5(Base):
     bandwidth = Column(Float(), nullable=True)
     connect_time = Column(Float(), nullable=True)
     description = Column(Text(), nullable=True)
+    dnsport = Column(Integer(), nullable=True)
 
     def __init__(self, host, port, country, country_code):
         self.host = host
@@ -69,10 +70,10 @@ class Socks5(Base):
         return socks_dict
 
     def __repr__(self):
-        return "<Socks5(host=%s, port=%s, country=%s, authenticated=%s)>" % (
+        return "<Socks5(host=%s, port=%s, country=%s, authenticated=%s, description=%s)>" % (
             self.host, self.port, self.country, (
                 self.username is not None and self.password is not None
-            )
+            ), self.description
         )
 
 
@@ -154,7 +155,7 @@ class Database(object):
 
     def list_socks5(self, country=None, country_code=None, city=None,
                     host=None, operational=None, unverified=None,
-                    description=None):
+                    description=None, dnsport=None):
         """Return a list of socks5 servers matching the filters"""
         session = self.Session()
         socks = session.query(Socks5)
@@ -183,6 +184,8 @@ class Database(object):
             if description:
                 socks = socks.filter(
                     func.lower(Socks5.description) == func.lower(description))
+            if description:
+                socks = socks.filter(Socks5.dnsport == int(dnsport))
             socks = socks.all()
             for s in socks:
                 session.expunge(s)

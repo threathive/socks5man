@@ -52,7 +52,7 @@ class Manager(object):
         else:
             return None
 
-    def add(self, host, port, username=None, password=None, description=None):
+    def add(self, host, port, username=None, password=None, dnsport=None, description=None):
         """Add a socks5 server.
 
         :param host: IP or a valid hostname of the socks5 server.
@@ -61,6 +61,8 @@ class Manager(object):
         :param username: Username of the socks5 server (optional)
         :param password: Password for the socks5 server user (optional).
             Password will be stored in plaintext!
+        :param dnsport: Port to forward dns requests
+            (optional)
         :param description: Description to store with the socks5 server
             (optional)
         :return: A dictionary containing the provided information,
@@ -124,7 +126,7 @@ class Manager(object):
         socksid = db.add_socks5(
             entry.host, entry.port, entry.country, entry.country_code,
             city=entry.city, username=entry.username, password=entry.password,
-            description=description
+            dnsport=dnsport, description=description,
         )
 
         entry["id"] = socksid

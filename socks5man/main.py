@@ -220,15 +220,15 @@ def list(country, code, city, host, operational, non_operational, count,
         print(
             "{:<4} {:<12} {:<20} {:<5} {:<16} {:<12} {:<16} {:<16} {:<16} {:<16}".format(
                 "ID", "Operational", "Host", "Port", "Country", "Country Code", "City",
-                "Username", "Password", "Description"
+                "Username", "Password", "DnsPort", "Description",
             )
         )
         for socks5 in socks5s:
             print(
-                "{:<4} {:<12} {:<20} {:<5} {:<16} {:<12} {:<16} {:<16} {:<16} {:<16}".format(
+                "{:<4} {:<12} {:<20} {:<5} {:<16} {:<12} {:<16} {:<16} {:<16} {:<6} {:<16}".format(
                     socks5.id, "Yes" if socks5.operational else "No", socks5.host, socks5.port,
                     socks5.country, socks5.country_code, socks5.city,
-                    socks5.username, socks5.password, socks5.description
+                    socks5.username, socks5.password, socks5.dnsport, socks5.description
                 )
             )
         sys.exit(0)
