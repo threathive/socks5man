@@ -391,3 +391,16 @@ class TestManager(object):
         assert len(all_socks) == 10
         for s in all_socks:
             assert isinstance(s, Socks5)
+
+    def test_list_socks5_description(self):
+        for x in range(10):
+            self.db.add_socks5(
+                "8.8.8.8", x, "germany", "Unknown",
+                city="Unknown", operational=False, username="doge",
+                password="wow", description="Such wow, many socks5"
+            )
+        m = Manager()
+        all_socks = m.list_socks5(description="Such wow, many socks5")
+        assert len(all_socks) == 10
+        for s in all_socks:
+            assert isinstance(s, Socks5)
