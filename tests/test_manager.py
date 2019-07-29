@@ -393,14 +393,25 @@ class TestManager(object):
             assert isinstance(s, Socks5)
 
     def test_list_socks5_description(self):
-        for x in range(10):
+        for x in range(3):
             self.db.add_socks5(
                 "8.8.8.8", x, "germany", "Unknown",
                 city="Unknown", operational=False, username="doge",
-                password="wow", description="Such wow, many socks5"
+                password="wow", description="google dns"
+            )
+        for x in range(3):
+            self.db.add_socks5(
+                "1.1.1.1", x, "germany", "Unknown",
+                city="Unknown", operational=False, username="doge",
+                password="wow", description="cloudflare dns"
             )
         m = Manager()
-        all_socks = m.list_socks5(description="Such wow, many socks5")
-        assert len(all_socks) == 10
+        all_socks = m.list_socks5(description="google dns")
+        assert len(all_socks) == 3
+        for s in all_socks:
+            assert isinstance(s, Socks5)
+
+        all_socks = m.list_socks5(description="cloudflare dns")
+        assert len(all_socks) == 3
         for s in all_socks:
             assert isinstance(s, Socks5)

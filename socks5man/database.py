@@ -178,7 +178,7 @@ class Database(object):
                 else:
                     socks = socks.filter_by(host=host)
             if description:
-                socks = socks.filter_by(
+                socks = socks.filter(
                     func.lower(Socks5.description) == func.lower(description))
             socks = socks.all()
             for s in socks:
