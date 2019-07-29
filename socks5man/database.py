@@ -184,7 +184,7 @@ class Database(object):
             if description:
                 socks = socks.filter(
                     func.lower(Socks5.description) == func.lower(description))
-            if description:
+            if dnsport:
                 socks = socks.filter(Socks5.dnsport == int(dnsport))
             socks = socks.all()
             for s in socks:
