@@ -220,7 +220,7 @@ class Manager(object):
         db.delete_all_socks5()
 
     def list_socks5(self, country=None, country_code=None, city=None,
-                    host=None, operational=None):
+                    host=None, operational=None, description=None):
         """Retrieve list of existing socks5 servers using the specified
         filters. This does not mark them as used. It only retrieves a list of
         matching servers. Returns an empty list if no matches were found.
@@ -232,6 +232,7 @@ class Manager(object):
         :param host: The host/IP of a socks5 server
         :param operational: Operational or not (bool).
             Is ignored if value is None
+        :param description: socks server description
         :returns: A list of Socks5 objects containing the information of the
             matching servers.
         :rtype: list
@@ -254,6 +255,6 @@ class Manager(object):
         """
         socks5s = db.list_socks5(
             country=country, country_code=country_code, city=city,
-            host=host, operational=operational
+            host=host, operational=operational, description=description,
         )
         return [Socks5(s) for s in socks5s]
