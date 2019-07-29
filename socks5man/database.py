@@ -117,7 +117,7 @@ class Database(object):
             ses.close()
 
     def add_socks5(self, host, port, country, country_code, operational=False,
-                   city=None, username=None, password=None, description=None):
+                   city=None, username=None, password=None, dnsport=None, description=None):
         """Add new socks5 server to the database"""
         socks5 = Socks5(host, port, country, country_code)
         socks5.operational = operational
@@ -125,6 +125,7 @@ class Database(object):
         socks5.username = username
         socks5.password = password
         socks5.description = description
+        socks5.dnsport = dnsport
 
         session = self.Session()
         try:
