@@ -89,7 +89,7 @@ class TestSocks5(object):
     def test_repr(self):
         s1id = self.db.add_socks5(
             "9.8.8.8", 4141, "Germany", "DE", city="Berlin",
-            description="Very wow"*100
+            description="Very wow Very wow"
         )
         s2id = self.db.add_socks5(
             "12.8.8.8", 4444, "Germany", "DE",  username="test",
@@ -97,8 +97,10 @@ class TestSocks5(object):
         )
         s = self.db.view_socks5(s1id)
         s2 = self.db.view_socks5(s2id)
-        assert repr(s) == "<Socks5(host=9.8.8.8, port=4141, country=Germany, authenticated=False)>"
-        assert repr(s2) == "<Socks5(host=12.8.8.8, port=4444, country=Germany, authenticated=True)>"
+        assert repr(
+            s) == "<Socks5(host=9.8.8.8, port=4141, country=Germany, authenticated=False, description=Very wow Very wow)>"
+        assert repr(
+            s2) == "<Socks5(host=12.8.8.8, port=4444, country=Germany, authenticated=True, description=None)>"
 
     def test_remove_socks5(self):
         id1 = self.db.add_socks5(

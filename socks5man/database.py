@@ -17,12 +17,14 @@ log = logging.getLogger(__name__)
 
 Base = declarative_base()
 
-SCHEMA_VERSION = "2b221e84eb82"
+SCHEMA_VERSION = "2910ee00d182"
+
 
 class AlembicVersion(Base):
     __tablename__ = "alembic_version"
 
     version_num = Column(String(32), nullable=False, primary_key=True)
+
 
 class Socks5(Base):
     __tablename__ = "socks5s"
@@ -42,6 +44,7 @@ class Socks5(Base):
     bandwidth = Column(Float(), nullable=True)
     connect_time = Column(Float(), nullable=True)
     description = Column(Text(), nullable=True)
+    dnsport = Column(Integer(), nullable=True)
 
     def __init__(self, host, port, country, country_code):
         self.host = host
@@ -67,11 +70,12 @@ class Socks5(Base):
         return socks_dict
 
     def __repr__(self):
-        return "<Socks5(host=%s, port=%s, country=%s, authenticated=%s)>" % (
+        return "<Socks5(host=%s, port=%s, country=%s, authenticated=%s, description=%s)>" % (
             self.host, self.port, self.country, (
                 self.username is not None and self.password is not None
-            )
+            ), self.description
         )
+
 
 class Database(object):
 
@@ -113,7 +117,7 @@ class Database(object):
             ses.close()
 
     def add_socks5(self, host, port, country, country_code, operational=False,
-                   city=None, username=None, password=None, description=None):
+                   city=None, username=None, password=None, dnsport=None, description=None):
         """Add new socks5 server to the database"""
         socks5 = Socks5(host, port, country, country_code)
         socks5.operational = operational
@@ -121,6 +125,7 @@ class Database(object):
         socks5.username = username
         socks5.password = password
         socks5.description = description
+        socks5.dnsport = dnsport
 
         session = self.Session()
         try:
@@ -150,7 +155,8 @@ class Database(object):
             session.close()
 
     def list_socks5(self, country=None, country_code=None, city=None,
-                    host=None, operational=None, unverified=None):
+                    host=None, operational=None, unverified=None,
+                    description=None, dnsport=None):
         """Return a list of socks5 servers matching the filters"""
         session = self.Session()
         socks = session.query(Socks5)
@@ -176,6 +182,11 @@ class Database(object):
                     socks = socks.filter(Socks5.host.in_(set(host)))
                 else:
                     socks = socks.filter_by(host=host)
+            if description:
+                socks = socks.filter(
+                    func.lower(Socks5.description) == func.lower(description))
+            if dnsport:
+                socks = socks.filter(Socks5.dnsport == int(dnsport))
             socks = socks.all()
             for s in socks:
                 session.expunge(s)
@@ -197,7 +208,7 @@ class Database(object):
                 socks5 = socks5.get(socks5_id)
             elif host and port:
                 socks5 = socks5.filter(and_(
-                    Socks5.host==host, Socks5.port==port
+                    Socks5.host == host, Socks5.port == port
                 )).first()
             else:
                 raise Socks5manDatabaseError(
