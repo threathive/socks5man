@@ -11,7 +11,7 @@ if sys.version[0] != "2":
 
 setup(
     name="Socks5man",
-    version="0.1.3",
+    version="0.2.0",
     author="Ricardo van Zutphen",
     author_email="ricardo@hatching.io",
     packages=[
