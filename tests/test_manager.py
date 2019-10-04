@@ -166,7 +166,27 @@ class TestManager(object):
         assert res.password is None
         all_socks = self.db.list_socks5()
         assert len(all_socks) == 1
-        all_socks[0].description == "Many wow"
+        assert all_socks[0].id == 1
+        assert all_socks[0].host == "8.8.8.8"
+        assert all_socks[0].port == 1337
+        assert all_socks[0].username is None
+        assert all_socks[0].password is None
+        assert all_socks[0].country == "United States"
+        assert all_socks[0].country_code == "US"
+
+    def test_add_description(self):
+        create_cwd(path=cwd())
+        m = Manager()
+        res = m.add("8.8.8.8", 1337, description="Many wow")
+        assert res.id == 1
+        assert res.host == "8.8.8.8"
+        assert res.port == 1337
+        all_socks = self.db.list_socks5()
+        assert len(all_socks) == 1
+        assert all_socks[0].id == 1
+        assert all_socks[0].host == "8.8.8.8"
+        assert all_socks[0].port == 1337
+        assert all_socks[0].description == "Many wow"
 
     def test_add_invalid_entry(self):
         create_cwd(path=cwd())
@@ -184,6 +204,12 @@ class TestManager(object):
         assert res.city == "Norwell"
         assert res.host == "example.com"
         assert res.port == 1337
+        all_socks = self.db.list_socks5()
+        assert len(all_socks) == 1
+        assert all_socks[0].host == "example.com"
+        assert all_socks[0].port == 1337
+        assert all_socks[0].country == "United States"
+        assert all_socks[0].country_code == "US"
 
     def test_add_invalid_auth_usage(self):
         create_cwd(path=cwd())
@@ -198,6 +224,23 @@ class TestManager(object):
         m = Manager()
         res = m.add("example.com", 1337, username="Hello", password="Bye")
         assert res.id == 1
+        all_socks = self.db.list_socks5()
+        assert len(all_socks) == 1
+        assert all_socks[0].host == "example.com"
+        assert all_socks[0].port == 1337
+        assert all_socks[0].username == "Hello"
+        assert all_socks[0].password == "Bye"
+
+    def test_add_dnsport(self):
+        create_cwd(path=cwd())
+        m = Manager()
+        res = m.add("example.com", 1337, dnsport=5050)
+        assert res.id == 1
+        all_socks = self.db.list_socks5()
+        assert len(all_socks) == 1
+        assert all_socks[0].dnsport == 5050
+        assert all_socks[0].host == "example.com"
+        assert all_socks[0].port == 1337
 
     def test_add_duplicate(self):
         create_cwd(path=cwd())
@@ -338,6 +381,24 @@ class TestManager(object):
         allsocks = self.db.list_socks5()
         assert allsocks[0].username == "hello"
         assert allsocks[0].password == "bye"
+
+    def test_bulk_dnsport(self):
+        create_cwd(path=cwd())
+        servers = [
+            {
+                "host": "8.8.8.8",
+                "port": 4242,
+                "dnsport": 5050
+            },
+            {
+                "host": "example.com",
+                "port": 9133
+            }
+        ]
+        m = Manager()
+        assert m.bulk_add(servers) == 2
+        allsocks = self.db.list_socks5()
+        assert allsocks[0].dnsport == 5050
 
     def test_bulk_add_nonew(self):
         create_cwd(path=cwd())
