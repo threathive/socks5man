@@ -33,13 +33,7 @@ setup(
     long_description=open("README.rst", "r").read(),
     include_package_data=True,
     url="https://github.com/RicoVZ/socks5man",
-    install_requires=[
-        "PySocks==1.5.7",
-        "geoip2==2.9.0",
-        "SQLAlchemy>=1.3.3, <1.4",
-        "click==6.6",
-        "alembic>=1.0.7, <1.1",
-    ],
+    install_requires=[r.strip() for r in open("requirements.txt", "r").readlines()],
     python_requires=">=2.7, <3.8",
     extras_require={
         ":sys_platform == 'win32'": [

@@ -53,7 +53,8 @@ class Manager(object):
         else:
             return None
 
-    def add(self, host, port, username=None, password=None, dnsport=None, description=None):
+    def add(self, host, port, username=None, password=None, dnsport=None,
+            description=None):
         """Add a socks5 server.
 
         :param host: IP or a valid hostname of the socks5 server.
@@ -189,6 +190,7 @@ class Manager(object):
                 "username": username,
                 "password": password,
                 "operational": False,
+                "dnsport": entry.get("dnsport"),
                 "description": entry.get("description")
             }
             new_entry.update(GeoInfo.ipv4info(valid_entry.ip))
