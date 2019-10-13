@@ -50,7 +50,7 @@ def is_ipv4(ip):
     """Try to parse string as Ipv4. Return True if success, False
     otherwise"""
     try:
-        socket.inet_aton(ip)
+        socket.inet_aton(ip.decode("utf-8"))
         return True
     except socket.error:
         return False

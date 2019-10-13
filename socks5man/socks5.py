@@ -44,11 +44,14 @@ class Socks5(object):
         if not is_ipv4(ip):
             ip = get_ipv4_hostname(ip)
 
-        response = get_over_socks5(
-            cfg("operationality", "ip_api"), self.host, self.port,
-            username=self.username, password=self.password,
-            timeout=cfg("operationality", "timeout")
-        )
+        try:
+            response = get_over_socks5(
+                cfg("operationality", "ip_api"), self.host, self.port,
+                username=self.username, password=self.password,
+                timeout=cfg("operationality", "timeout")
+            )
+        except AttributeError:
+            return operational
 
         if response:
             if ip == response:
