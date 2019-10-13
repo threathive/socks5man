@@ -32,7 +32,7 @@ class TestSocks5(object):
         )
         s3id = self.db.add_socks5(
             "11.8.8.8", 4343, "Germany", "DE",  username="test",
-            password="pass"
+            password="pass", dnsport=5050
         )
         s4id = self.db.add_socks5(
             "12.8.8.8", 4444, "Germany", "DE",  username="test",
@@ -57,6 +57,7 @@ class TestSocks5(object):
         assert s3.username == "test"
         assert s3.password == "pass"
         assert s3.port == 4343
+        assert s3.dnsport == 5050
         assert s4.host == "12.8.8.8"
         assert s4.port == 4444
         assert s4.operational
@@ -135,7 +136,7 @@ class TestSocks5(object):
         assert len(res) == 2
 
     def test_list_socks5_country(self):
-        s1id = self.db.add_socks5(
+        self.db.add_socks5(
             "9.8.8.8", 4141, "Germany", "DE", city="Berlin",
             operational=False
         )
@@ -153,7 +154,7 @@ class TestSocks5(object):
         assert res[0].id == s2id
 
     def test_list_socks5_country_code(self):
-        s1id = self.db.add_socks5(
+        self.db.add_socks5(
             "9.8.8.8", 4141, "Germany", "DE", city="Berlin",
             operational=False
         )
@@ -202,7 +203,7 @@ class TestSocks5(object):
             "9.8.8.8", 4141, "France", "FR", city="Paris",
             operational=True
         )
-        s3id = self.db.add_socks5(
+        self.db.add_socks5(
             "9.10.8.8", 4141, "France", "FR", city="Paris",
             operational=True
         )
@@ -228,7 +229,7 @@ class TestSocks5(object):
             "9.10.8.8", 4141, "France", "FR", city="Paris",
             operational=True
         )
-        s4id = self.db.add_socks5(
+        self.db.add_socks5(
             "10.10.8.8", 4141, "France", "FR", city="Paris",
             operational=True
         )
