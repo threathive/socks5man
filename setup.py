@@ -1,11 +1,10 @@
 from __future__ import absolute_import
-import sys
 
 from setuptools import setup
 
 setup(
     name="Socks5man",
-    version="0.1.3",
+    version="0.2.1",
     author="Ricardo van Zutphen",
     author_email="ricardo@hatching.io",
     packages=[
