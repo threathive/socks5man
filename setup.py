@@ -1,13 +1,7 @@
+from __future__ import absolute_import
 import sys
 
 from setuptools import setup
-
-if sys.version[0] != "2":
-    sys.exit(
-        "Socks5man currently only supports Python 2.7. 3.5+ is on the roadmap"
-        ", but is not supported yet. For now, please install it in the"
-        " following way: `pip2 install -U socks5man`."
-    )
 
 setup(
     name="Socks5man",
@@ -47,7 +41,7 @@ setup(
         "click==6.6",
         "alembic>=1.0.7, <1.1",
     ],
-    python_requires=">=2.7, <3.0",
+    python_requires=">=2.7, <3.8",
     extras_require={
         ":sys_platform == 'win32'": [
             "win-inet-pton==1.0.1",

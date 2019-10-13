@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import click
 import csv
 import logging
@@ -11,6 +13,8 @@ from socks5man.logs import init_loggers
 from socks5man.manager import Manager
 from socks5man.tools import verify_all, update_geodb
 from socks5man.misc import cwd
+import six
+from six.moves import range
 
 
 log = logging.getLogger(__name__)
@@ -75,7 +79,7 @@ def add(host, port, username, password, description):
     try:
         entry = m.add(
             host, port, username=username, password=password,
-            description=unicode(description)
+            description=six.text_type(description)
         )
     except Socks5manError as e:
         log.error("Failed to add socks5 server: %s", e)
@@ -217,20 +221,20 @@ def list(country, code, city, host, operational, non_operational, count,
         sys.exit(0)
 
     if not export:
-        print(
+        print((
             "{:<4} {:<12} {:<20} {:<5} {:<16} {:<12} {:<16} {:<16} {:<16}{:<16}".format(
                 "ID", "Operational", "Host", "Port", "Country", "Country Code", "City",
                 "Username", "Password", "Description",
             )
-        )
+        ))
         for socks5 in socks5s:
-            print(
+            print((
                 "{:<4} {:<12} {:<20} {:<5} {:<16} {:<12} {:<16} {:<16} {:<16} {:<16}".format(
                     socks5.id, "Yes" if socks5.operational else "No", socks5.host, socks5.port,
                     socks5.country, socks5.country_code, socks5.city,
                     socks5.username, socks5.password, socks5.description
                 )
-            )
+            ))
         sys.exit(0)
 
     if os.path.exists(export):
@@ -243,10 +247,10 @@ def list(country, code, city, host, operational, non_operational, count,
         for socks5 in socks5s:
             socks5_d = socks5.to_dict()
             if header:
-                csv_w.writerow(socks5_d.keys())
+                csv_w.writerow(list(socks5_d.keys()))
                 header = False
 
-            csv_w.writerow(socks5_d.values())
+            csv_w.writerow(list(socks5_d.values()))
 
 
 @main.command()

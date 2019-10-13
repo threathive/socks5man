@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 import logging
 import socket
 import socks
 import struct
 import time
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 
 from socks5man.config import cfg
 from socks5man.constants import IANA_RESERVERD_IPV4_RANGES
@@ -11,6 +12,7 @@ from socks5man.misc import cwd
 
 from geoip2 import database as geodatabase
 from geoip2.errors import GeoIP2Error
+from six.moves import range
 
 log = logging.getLogger(__name__)
 
@@ -133,8 +135,8 @@ def get_over_socks5(url, host, port, username=None, password=None, timeout=3):
     response = None
     try:
         socket.socket = socks.socksocket
-        response = urllib2.urlopen(url, timeout=timeout).read()
-    except (socket.error, urllib2.URLError, socks.ProxyError) as e:
+        response = six.moves.urllib.request.urlopen(url, timeout=timeout).read()
+    except (socket.error, six.moves.urllib.error.URLError, socks.ProxyError) as e:
         log.error("Error making HTTP GET over socks5: %s", e)
     finally:
         socket.socket = socket._socketobject

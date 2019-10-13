@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import re
 import socket
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 
 from socks5man.config import cfg
 from socks5man.misc import set_cwd, create_cwd, cwd
@@ -20,7 +21,7 @@ class TestConfigValues(object):
     def test_ip_api(self):
         """Verify that the default ip api returns an actual ip"""
         create_cwd(cwd())
-        res = urllib2.urlopen(
+        res = six.moves.urllib.request.urlopen(
             cfg("operationality", "ip_api"),
             timeout=cfg("operationality", "timeout")
         )
@@ -42,7 +43,7 @@ class TestConfigValues(object):
         """Verify that the url used to measure an approximate bandwidth
         is still available"""
         create_cwd(cwd())
-        res = urllib2.urlopen(
+        res = six.moves.urllib.request.urlopen(
             cfg("bandwidth", "download_url"),
             timeout=cfg("bandwidth", "timeout")
         )
@@ -51,6 +52,6 @@ class TestConfigValues(object):
 
     def test_geoipdb_hash_url(self):
         create_cwd(cwd())
-        res = urllib2.urlopen(cfg("geodb", "geodb_md5_url"))
+        res = six.moves.urllib.request.urlopen(cfg("geodb", "geodb_md5_url"))
         assert res.getcode() == 200
         assert len(res.read()) == 32

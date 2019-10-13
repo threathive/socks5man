@@ -1,4 +1,5 @@
-import ConfigParser
+from __future__ import absolute_import
+import six.moves.configparser
 import os
 
 from socks5man.exceptions import Socks5ConfigError
@@ -43,7 +44,7 @@ class Config(object):
         if Config._cache:
             Config._cache = {}
 
-        config = ConfigParser.ConfigParser()
+        config = six.moves.configparser.ConfigParser()
 
         confpath = cwd("conf", "socks5man.conf")
         if not os.path.isfile(confpath):
@@ -53,7 +54,7 @@ class Config(object):
             )
         try:
             config.read(confpath)
-        except ConfigParser.Error as e:
+        except six.moves.configparser.Error as e:
             raise Socks5ConfigError(
                 "Cannot parse config file. Error: %s" % e
             )

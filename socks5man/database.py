@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import logging
 import os
 from datetime import datetime
@@ -12,6 +13,8 @@ from sqlalchemy.orm import sessionmaker
 
 from socks5man.exceptions import Socks5manError, Socks5manDatabaseError
 from socks5man.misc import cwd, Singleton
+import six
+from six.moves import range
 
 log = logging.getLogger(__name__)
 
@@ -62,7 +65,7 @@ class Socks5(Base):
             value = getattr(self, column.name)
             if isinstance(value, datetime):
                 socks_dict[column.name] = value.strftime("%Y-%m-%d %H:%M:%S")
-            elif isinstance(value, (str, basestring)):
+            elif isinstance(value, (str, six.string_types)):
                 socks_dict[column.name] = value.encode("utf-8")
             else:
                 socks_dict[column.name] = value
@@ -77,9 +80,7 @@ class Socks5(Base):
         )
 
 
-class Database(object):
-
-    __metaclass__ = Singleton
+class Database(six.with_metaclass(Singleton, object)):
 
     def __init__(self):
         self.connect(create=True)
@@ -381,7 +382,7 @@ class Database(object):
         @param ids_list: A list of socks5 ids to delete"""
         chunk = 100
         try:
-            for c in xrange(0, len(ids_list), chunk):
+            for c in range(0, len(ids_list), chunk):
                 self.engine.execute(
                     Socks5.__table__.delete().where(
                         Socks5.id.in_(ids_list[c:c+chunk])

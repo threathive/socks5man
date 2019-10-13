@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import time
 
 import pytest
@@ -6,6 +7,7 @@ from socks5man.database import Database, AlembicVersion, SCHEMA_VERSION
 from socks5man.exceptions import Socks5manDatabaseError
 from socks5man.misc import set_cwd
 from tests.helpers import CleanedTempFile
+from six.moves import range
 
 
 class TestSocks5(object):
