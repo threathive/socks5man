@@ -4,7 +4,7 @@ import os
 import socket
 import shutil
 import time
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import urllib
 
 from socks5man.config import cfg
 from socks5man.database import Database
@@ -32,7 +32,7 @@ def verify_all(repeated=False, operational=None, unverified=None):
             socks5 = Socks5(socks5)
 
             log.info(
-                "Testing socks5 server: '%s:%s'", socks5.host.decode("utf-8"), socks5.port
+                "Testing socks5 server: '%s:%s'", socks5.host, socks5.port
             )
             if socks5.verify():
                 log.info("Operationality check: OK")
@@ -63,9 +63,9 @@ def verify_all(repeated=False, operational=None, unverified=None):
                 if not download_verified:
                     download_url = cfg("bandwidth", "download_url")
                     try:
-                        six.moves.urllib.request.urlopen(download_url, timeout=5)
+                        urllib.request.urlopen(download_url, timeout=5)
                         download_verified = True
-                    except (socket.error, six.moves.urllib.error.URLError) as e:
+                    except (socket.error, urllib.error.URLError) as e:
                         log.error(
                             "Failed to download speed test file: '%s'. Please"
                             " verify the configured file is still online!"
@@ -106,8 +106,8 @@ def update_geodb():
         current_version = fp.read()
 
     try:
-        latest_version = six.moves.urllib.request.urlopen(cfg("geodb", "geodb_md5_url")).read()
-    except six.moves.urllib.error.URLError as e:
+        latest_version = urllib.request.urlopen(cfg("geodb", "geodb_md5_url")).read()
+    except urllib.error.URLError as e:
         log.error("Error retrieving latest geodb version hash: %s", e)
         return
 
@@ -124,8 +124,8 @@ def update_geodb():
     try:
         url = cfg("geodb", "geodb_url")
         log.info("Downloading latest version: '%s'", url)
-        mmdbtar = six.moves.urllib.request.urlopen(url).read()
-    except six.moves.urllib.error.URLError as e:
+        mmdbtar = urllib.request.urlopen(url).read()
+    except urllib.error.URLError as e:
         log.error(
             "Failed to download new mmdb tar. Is the URL correct? %s", e
         )

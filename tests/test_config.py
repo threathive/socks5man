@@ -1,6 +1,6 @@
 from __future__ import absolute_import
-import copy
 import os
+import copy
 import pytest
 
 from socks5man.config import Config, cfg, confbool
@@ -9,7 +9,7 @@ from socks5man.exceptions import Socks5ConfigError
 from socks5man.misc import set_cwd, create_cwd, cwd
 
 from tests.helpers import CleanedTempFile
-import six
+
 
 class TestConfig(object):
 
@@ -33,18 +33,18 @@ class TestConfig(object):
         create_cwd(cwd())
         assert isinstance(cfg("socks5man", "verify_interval"), int)
         assert isinstance(cfg("socks5man", "bandwidth_interval"), int)
-        assert isinstance(cfg("operationality", "ip_api"), (str, six.string_types))
+        assert isinstance(cfg("operationality", "ip_api"), (str))
         assert isinstance(cfg("operationality", "timeout"), int)
         assert isinstance(cfg("connection_time", "enabled"), bool)
         assert isinstance(cfg("connection_time", "timeout"), int)
-        assert isinstance(cfg("connection_time", "hostname"),(str, six.string_types))
+        assert isinstance(cfg("connection_time", "hostname"), (str))
         assert isinstance(cfg("connection_time", "port"), int)
         assert isinstance(cfg("bandwidth", "enabled"), bool)
-        assert isinstance(cfg("bandwidth", "download_url"), (str, six.string_types))
+        assert isinstance(cfg("bandwidth", "download_url"), (str))
         assert isinstance(cfg("bandwidth", "times"), int)
         assert isinstance(cfg("bandwidth", "timeout"), int)
-        assert isinstance(cfg("geodb", "geodb_url"), (str, six.string_types))
-        assert isinstance(cfg("geodb", "geodb_md5_url"), (str, six.string_types))
+        assert isinstance(cfg("geodb", "geodb_url"), (str))
+        assert isinstance(cfg("geodb", "geodb_md5_url"), (str))
 
     def test_cfg_values(self):
         create_cwd(cwd())

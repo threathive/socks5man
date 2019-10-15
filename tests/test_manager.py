@@ -56,7 +56,7 @@ class TestManager(object):
         m = Manager()
         socks5_1 = m.acquire(country="germany")
         assert socks5_1.id == 3
-        assert socks5_1.country == "Germany"
+        assert socks5_1.country == b"Germany"
         socks5_2 = m.acquire(country="france")
         assert socks5_2 is None
 
@@ -95,7 +95,7 @@ class TestManager(object):
         m = Manager()
         socks5_1 = m.acquire(city="tallinn")
         assert socks5_1.id == 3
-        assert socks5_1.city == "Tallinn"
+        assert socks5_1.city == b"Tallinn"
         socks5_2 = m.acquire(city="Nowhere")
         assert socks5_2 is None
 

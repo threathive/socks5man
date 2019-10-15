@@ -13,8 +13,6 @@ from socks5man.logs import init_loggers
 from socks5man.manager import Manager
 from socks5man.tools import verify_all, update_geodb
 from socks5man.misc import cwd
-import six
-from six.moves import range
 
 
 log = logging.getLogger(__name__)
@@ -79,7 +77,7 @@ def add(host, port, username, password, description):
     try:
         entry = m.add(
             host, port, username=username, password=password,
-            description=six.text_type(description)
+            description=description
         )
     except Socks5manError as e:
         log.error("Failed to add socks5 server: %s", e)

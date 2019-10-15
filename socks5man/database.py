@@ -13,8 +13,6 @@ from sqlalchemy.orm import sessionmaker
 
 from socks5man.exceptions import Socks5manError, Socks5manDatabaseError
 from socks5man.misc import cwd, Singleton
-import six
-from six.moves import range
 
 log = logging.getLogger(__name__)
 
@@ -65,7 +63,7 @@ class Socks5(Base):
             value = getattr(self, column.name)
             if isinstance(value, datetime):
                 socks_dict[column.name] = value.strftime("%Y-%m-%d %H:%M:%S")
-            elif isinstance(value, (str, six.string_types)):
+            elif isinstance(value, str):
                 socks_dict[column.name] = value.encode("utf-8")
             else:
                 socks_dict[column.name] = value
@@ -80,7 +78,7 @@ class Socks5(Base):
         )
 
 
-class Database(six.with_metaclass(Singleton, object)):
+class Database(object, metaclass=Singleton):
 
     def __init__(self):
         self.connect(create=True)

@@ -106,7 +106,10 @@ class Socks5(object):
                     cfg("connection_time", "port")
             ))
             s.close()
-        except (socks.ProxyError, socket.error) as e:
+        except socks.ProxyError as e:
+            log.error("Error connecting in connection time test: %s", e)
+            connect_time = None
+        except socket.error as e:
             log.error("Error connecting in connection time test: %s", e)
             connect_time = None
         else:

@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 import mock
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import urllib.request, urllib.error, urllib.parse
 
 from socks5man.helpers import (
     Dictionary, is_ipv4, is_reserved_ipv4, GeoInfo, get_ipv4_hostname,
@@ -162,7 +162,7 @@ def test_get_over_socks5_fail(ms, mu, mss):
     mss.socket = "DOGE"
     mss._socketobject = "socket"
     httpresponse = mock.MagicMock()
-    httpresponse.read.side_effect = six.moves.urllib.error.URLError("Error")
+    httpresponse.read.side_effect = urllib.error.URLError("Error")
     mu.return_value = httpresponse
     ms.socksocket = "socksocket"
     res = get_over_socks5(
