@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="Socks5man",
-    version="0.2.1",
+    version="0.3.0",
     author="Ricardo van Zutphen",
     author_email="ricardo@hatching.io",
     packages=[
@@ -34,7 +34,7 @@ setup(
     include_package_data=True,
     url="https://github.com/RicoVZ/socks5man",
     install_requires=[r.strip() for r in open("requirements.txt", "r").readlines()],
-    python_requires=">=2.7, <3.8",
+    python_requires=">=3.6, <3.8",
     extras_require={
         ":sys_platform == 'win32'": [
             "win-inet-pton==1.0.1",
