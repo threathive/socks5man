@@ -37,11 +37,11 @@ class TestSocks5(object):
         assert s.host == b"8.8.8.8"
         assert s.port == 1337
         assert s.country == b"germany"
-        assert s.city == "Frankfurt"
+        assert s.city == b"Frankfurt"
         assert s.country_code == "DE"
-        assert s.username == "doge"
+        assert s.username == b"doge"
         assert s.password == "wow"
-        assert s.description == "Such wow, many socks5"
+        assert s.description == b"Such wow, many socks5"
         assert s.operational
         assert s.bandwidth == 10.55
         assert s.connect_time == 0.07
