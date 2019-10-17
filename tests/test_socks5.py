@@ -36,7 +36,7 @@ class TestSocks5(object):
         assert s.id == 1
         assert s.host == b"8.8.8.8"
         assert s.port == 1337
-        assert s.country == "germany"
+        assert s.country == b"germany"
         assert s.city == "Frankfurt"
         assert s.country_code == "DE"
         assert s.username == "doge"
