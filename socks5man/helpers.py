@@ -137,7 +137,7 @@ def get_over_socks5(url, host, port, username=None, password=None, timeout=3):
     try:
         socket.socket = socks.socksocket
         response = urllib.request.urlopen(url, timeout=timeout).read()
-    except (socket.error, urllib.error.URLError, socks.ProxyError) as e:
+    except urllib.error.URLError as e:
         log.error("Error making HTTP GET over socks5: %s", e)
     finally:
         socket.socket = socket._socketobject

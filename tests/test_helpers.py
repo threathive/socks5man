@@ -135,7 +135,7 @@ def test_validify_host_port():
     assert res11 is None
 
 @mock.patch("socks5man.helpers.socket")
-@mock.patch("urllib2.urlopen")
+@mock.patch("urllib.request.urlopen")
 @mock.patch("socks5man.helpers.socks")
 def test_get_over_socks5(ms, mu, mss):
     mss.socket = "DOGE"

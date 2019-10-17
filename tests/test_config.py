@@ -78,8 +78,8 @@ class TestConfig(object):
     def test_invalid_conf(self):
         create_cwd(cwd())
         Config._cache = {}
-        with open(cwd("conf", "socks5man.conf"), "wb") as fw:
-            fw.write(os.urandom(512))
+        with open(cwd("conf", "socks5man.conf"), "w") as fw:
+            fw.write("socks5man to dominate them all")
         with pytest.raises(Socks5ConfigError):
             cfg("socks5man", "verify_interval")
 
