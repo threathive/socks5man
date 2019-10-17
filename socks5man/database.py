@@ -10,6 +10,7 @@ from sqlalchemy import (
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.types import TypeDecorator, Unicode
 
 from socks5man.exceptions import Socks5manError, Socks5manDatabaseError
 from socks5man.misc import cwd, Singleton
@@ -19,6 +20,18 @@ log = logging.getLogger(__name__)
 Base = declarative_base()
 
 SCHEMA_VERSION = "2910ee00d182"
+
+
+class CoerceUTF8(TypeDecorator):
+    """Safely coerce Python bytestrings to Unicode
+    before passing off to the database."""
+
+    impl = Unicode
+
+    def process_bind_param(self, value, dialect):
+        if isinstance(value, str):
+            value = value.decode('utf-8')
+        return value
 
 
 class AlembicVersion(Base):
@@ -31,20 +44,20 @@ class Socks5(Base):
     __tablename__ = "socks5s"
 
     id = Column(Integer(), primary_key=True)
-    host = Column(String(255), nullable=False)
+    host = Column(CoerceUTF8, nullable=False)
     port = Column(Integer(), nullable=False)
-    country = Column(String(255), nullable=False)
-    country_code = Column(String(2), nullable=False)
-    city = Column(String(255), nullable=True)
-    username = Column(String(255), nullable=True)
-    password = Column(String(255), nullable=True)
+    country = Column(CoerceUTF8, nullable=False)
+    country_code = Column(CoerceUTF8, nullable=False)
+    city = Column(CoerceUTF8, nullable=True)
+    username = Column(CoerceUTF8, nullable=True)
+    password = Column(CoerceUTF8, nullable=True)
     added_on = Column(DateTime(), default=datetime.now, nullable=False)
     last_use = Column(DateTime(), nullable=True)
     last_check = Column(DateTime(), nullable=True)
     operational = Column(Boolean, nullable=False, default=False)
     bandwidth = Column(Float(), nullable=True)
     connect_time = Column(Float(), nullable=True)
-    description = Column(Text(), nullable=True)
+    description = Column(CoerceUTF8, nullable=True)
     dnsport = Column(Integer(), nullable=True)
 
     def __init__(self, host, port, country, country_code):

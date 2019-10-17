@@ -156,7 +156,7 @@ def test_get_over_socks5(ms, mu, mss):
     assert mss.socket == "socket"
 
 @mock.patch("socks5man.helpers.socket")
-@mock.patch("urllib2.urlopen")
+@mock.patch("urllib.request.urlopen")
 @mock.patch("socks5man.helpers.socks")
 def test_get_over_socks5_fail(ms, mu, mss):
     mss.socket = "DOGE"
