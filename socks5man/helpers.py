@@ -130,20 +130,21 @@ def validify_host_port(host, port):
 def get_over_socks5(url, host, port, username=None, password=None, timeout=3):
     """Make a HTTP GET request over socks5 of the given URL"""
 
+    original_socket = socket.socket
     socks.set_default_proxy(
         socks.SOCKS5, host, port,
         username=username, password=password
     )
 
     response = None
-    original_socket = socket.socket
+    clean_socket = socket.socket
     try:
         socket.socket = socks.socksocket
         response = urllib.request.urlopen(url, timeout=timeout).read()
     except urllib.error.URLError as e:
         log.error("Error making HTTP GET over socks5: %s", e)
     finally:
-        socket.socket = original_socket
+        socket.socket = clean_socket
     return response
 
 def approximate_bandwidth(host, port, username=None, password=None,

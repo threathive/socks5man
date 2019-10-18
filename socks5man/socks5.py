@@ -53,7 +53,7 @@ class Socks5(object):
             return operational
 
         if response:
-            if ip == response:
+            if ip == response.decode("utf-8"):
                 operational = True
 
             # If a private ip is used, the api response will not match with
