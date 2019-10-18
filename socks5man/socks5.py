@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 import logging
-import socket
 import socks
 import sys
 import time
@@ -40,13 +39,13 @@ class Socks5(object):
         :rtype: bool
         """
         operational = False
-        ip = self.host
+        ip = self.host.decode("utf-8")
         if not is_ipv4(ip):
             ip = get_ipv4_hostname(ip)
 
         try:
             response = get_over_socks5(
-                cfg("operationality", "ip_api"), self.host, self.port,
+                cfg("operationality", "ip_api"), self.host.decode("utf-8"), self.port,
                 username=self.username, password=self.password,
                 timeout=cfg("operationality", "timeout")
             )

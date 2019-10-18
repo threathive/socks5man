@@ -4,7 +4,8 @@ import socket
 import socks
 import struct
 import time
-import urllib
+import urllib.request
+import urllib.error
 
 from socks5man.config import cfg
 from socks5man.constants import IANA_RESERVERD_IPV4_RANGES
@@ -128,19 +129,21 @@ def validify_host_port(host, port):
 
 def get_over_socks5(url, host, port, username=None, password=None, timeout=3):
     """Make a HTTP GET request over socks5 of the given URL"""
+
     socks.set_default_proxy(
         socks.SOCKS5, host, port,
         username=username, password=password
     )
 
     response = None
+    original_socket = socket.socket
     try:
         socket.socket = socks.socksocket
         response = urllib.request.urlopen(url, timeout=timeout).read()
     except urllib.error.URLError as e:
         log.error("Error making HTTP GET over socks5: %s", e)
     finally:
-        socket.socket = socket._socketobject
+        socket.socket = original_socket
     return response
 
 def approximate_bandwidth(host, port, username=None, password=None,
