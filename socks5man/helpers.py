@@ -130,11 +130,9 @@ def validify_host_port(host, port):
 def get_over_socks5(url, host, port, username=None, password=None, timeout=3):
     """Make a HTTP GET request over socks5 of the given URL"""
 
-    original_socket = socket.socket
-    socks.set_default_proxy(
-        socks.SOCKS5, host, port,
-        username=username, password=password
-    )
+    sock = socks.socksocket()
+    sock.set_proxy(socks.SOCKS5, host, port, username=username, password=password)
+    #socks.set_default_proxy(socks.SOCKS5, host, port, username=username, password=password)
 
     response = None
     clean_socket = socket.socket
