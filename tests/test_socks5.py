@@ -73,7 +73,7 @@ class TestSocks5(object):
     @mock.patch("socks5man.socks5.get_over_socks5")
     def test_verify(self, mg):
         create_cwd(cwd())
-        mg.return_value = "8.8.8.8"
+        mg.return_value = b"8.8.8.8"
         self.db.add_socks5(
             "8.8.8.8", 1337, "germany", "DE",
             city="Frankfurt", operational=False, username="doge",
@@ -107,11 +107,11 @@ class TestSocks5(object):
     @mock.patch("socks5man.socks5.get_over_socks5")
     def test_verify_private(self, mg):
         create_cwd(cwd())
-        mg.return_value = "8.8.8.8"
+        mg.return_value = b"8.8.8.8"
         self.db.add_socks5(
             "192.168.0.50", 1337, "germany", "DE",
             city="Frankfurt", operational=False, username="doge",
-            password="wow", description="Such wow, many socks5"
+            password="wow", description="Such wow, many socks5",
         )
         db_socks5 = self.db.view_socks5(1)
         s = Socks5(db_socks5)
@@ -122,7 +122,7 @@ class TestSocks5(object):
     @mock.patch("socks5man.socks5.get_over_socks5")
     def test_verify_hostname(self, mg):
         create_cwd(cwd())
-        mg.return_value = "93.184.216.34"
+        mg.return_value = b"93.184.216.34"
         self.db.add_socks5(
             "example.com", 1337, "germany", "DE",
             city="Frankfurt", operational=False, username="doge",
