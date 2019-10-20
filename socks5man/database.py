@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 import logging
-import os
+import os, sys
 from datetime import datetime
 
 from sqlalchemy import (
