@@ -72,7 +72,7 @@ class TestOther(object):
     def test_md5(self):
         fd, path = self.tempfile.mkstemp()
 
-        os.write(fd, b"tosti")
+        os.write(fd, "tosti")
         os.close(fd)
         assert md5(path) == "9e796589d183889f5c65af8b736490bb"
 

@@ -231,7 +231,7 @@ def list(country, code, city, host, operational, non_operational, count,
                     socks5.id, "Yes" if socks5.operational else "No", socks5.host.decode("utf-8"), socks5.port,
                     socks5.country.decode("utf-8"), socks5.country_code, socks5.city.decode("utf-8"),
                     socks5.username if socks5.username else "" , socks5.password if socks5.password else "",
-                    socks5.description.decode("utf-8") if socks5.description else None
+                    socks5.description.decode("utf-8") if socks5.description else ""
                 )
             ))
 

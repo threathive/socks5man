@@ -34,14 +34,14 @@ class TestSocks5(object):
         s = Socks5(db_socks5)
 
         assert s.id == 1
-        assert s.host == b"8.8.8.8"
+        assert s.host == "8.8.8.8"
         assert s.port == 1337
-        assert s.country == b"germany"
-        assert s.city == b"Frankfurt"
+        assert s.country == "germany"
+        assert s.city == "Frankfurt"
         assert s.country_code == "DE"
-        assert s.username == b"doge"
+        assert s.username == "doge"
         assert s.password == "wow"
-        assert s.description == b"Such wow, many socks5"
+        assert s.description == "Such wow, many socks5"
         assert s.operational
         assert s.bandwidth == 10.55
         assert s.connect_time == 0.07
@@ -83,7 +83,7 @@ class TestSocks5(object):
         s = Socks5(db_socks5)
         assert s.verify()
         mg.assert_called_once_with(
-            "http://api.ipify.org", b"8.8.8.8", 1337, username=b"doge",
+            "http://api.ipify.org", "8.8.8.8", 1337, username="doge",
             password="wow", timeout=3
         )
         db_socks5_2 = self.db.view_socks5(1)
@@ -148,7 +148,7 @@ class TestSocks5(object):
         res = s.approx_bandwidth()
         assert res == 15.10
         ma.assert_called_once_with(
-            b"example.com", 1337, username=b"doge", password="wow",
+            "example.com", 1337, username="doge", password="wow",
             times=2, timeout=10
         )
         db_socks5_2 = self.db.view_socks5(1)
@@ -186,7 +186,7 @@ class TestSocks5(object):
 
         assert isinstance(res, float)
         socksocket.set_proxy.assert_called_once_with(
-            ms.SOCKS5, b"example.com", 1337, username=b"doge", password="wow"
+            ms.SOCKS5, "example.com", 1337, username="doge", password="wow"
         )
         socksocket.settimeout.assert_called_once_with(3)
         socksocket.connect.assert_called_once_with(
@@ -219,15 +219,15 @@ class TestSocks5(object):
         s = self.db.view_socks5(1)
         socks5 = Socks5(s)
         d = socks5.to_dict()
-        assert d["host"] == b"example.com"
+        assert d["host"] == "example.com"
         assert d["port"] == 1337
-        assert d["country"] == b"germany"
-        assert d["country_code"] == b"DE"
-        assert d["city"] == b"Frankfurt"
+        assert d["country"] == "germany"
+        assert d["country_code"] == "DE"
+        assert d["city"] == "Frankfurt"
         assert not d["operational"]
-        assert d["username"] == b"doge"
-        assert d["password"] == b"wow"
-        assert d["description"] == b"Such wow, many socks5"
+        assert d["username"] == "doge"
+        assert d["password"] == "wow"
+        assert d["description"] == "Such wow, many socks5"
         assert d["added_on"] == socks5.added_on.strftime("%Y-%m-%d %H:%M:%S")
 
     def test_repr(self):
@@ -238,7 +238,7 @@ class TestSocks5(object):
         )
         s = self.db.view_socks5(1)
         socks5 = Socks5(s)
-        assert repr(socks5) == "<Socks5(host=b'example.com', port=1337, country=b'germany', authenticated=True)>"
+        assert repr(socks5) == "<Socks5(host='example.com', port=1337, country='germany', authenticated=True)>"
 
     def test_repr_nonauth(self):
         self.db.add_socks5(
@@ -248,7 +248,7 @@ class TestSocks5(object):
         )
         s = self.db.view_socks5(1)
         socks5 = Socks5(s)
-        assert repr(socks5) == "<Socks5(host=b'example.com', port=1337, country=b'germany', authenticated=False)>"
+        assert repr(socks5) == "<Socks5(host='example.com', port=1337, country='germany', authenticated=False)>"
 
     def test_win_imported_win_inet_pton(self):
         if sys.platform == "win32":

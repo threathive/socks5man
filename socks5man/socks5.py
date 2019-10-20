@@ -39,13 +39,13 @@ class Socks5(object):
         :rtype: bool
         """
         operational = False
-        ip = self.host.decode("utf-8")
+        ip = self.host
         if not is_ipv4(ip):
             ip = get_ipv4_hostname(ip)
 
         try:
             response = get_over_socks5(
-                cfg("operationality", "ip_api"), self.host.decode("utf-8"), self.port,
+                cfg("operationality", "ip_api"), self.host, self.port,
                 username=self.username, password=self.password,
                 timeout=cfg("operationality", "timeout")
             )
@@ -141,7 +141,7 @@ class Socks5(object):
         :rtype: str
         """
         if self.db_socks5.host:
-            return self.db_socks5.host.encode("utf-8")
+            return self.db_socks5.host
         return None
 
     @property
@@ -161,7 +161,7 @@ class Socks5(object):
         :rtype: str
         """
         if self.db_socks5.country:
-            return self.db_socks5.country.encode("utf-8")
+            return self.db_socks5.country
         return None
 
     @property
@@ -182,7 +182,7 @@ class Socks5(object):
         :rtype: str
         """
         if self.db_socks5.city:
-            return self.db_socks5.city.encode("utf-8")
+            return self.db_socks5.city
         return None
 
     @property
@@ -193,7 +193,7 @@ class Socks5(object):
         :rtype: str
         """
         if self.db_socks5.username:
-            return self.db_socks5.username.encode("utf-8")
+            return self.db_socks5.username
         return None
 
     @property
@@ -270,7 +270,7 @@ class Socks5(object):
         :rtype: str
         """
         if self.db_socks5.description:
-            return self.db_socks5.description.encode("utf-8")
+            return self.db_socks5.description
         return None
 
     def __repr__(self):
