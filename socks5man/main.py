@@ -226,14 +226,14 @@ def list(country, code, city, host, operational, non_operational, count,
             )
         ))
         for socks5 in socks5s:
-            print((
+            print(
                 "{:<4} {:<12} {:<20} {:<5} {:<16} {:<12} {:<16} {:<16} {:<16} {:<16}".format(
-                    socks5.id, "Yes" if socks5.operational else "No", socks5.host.decode("utf-8"), socks5.port,
-                    socks5.country.decode("utf-8"), socks5.country_code, socks5.city.decode("utf-8"),
-                    socks5.username if socks5.username else "" , socks5.password if socks5.password else "",
-                    socks5.description.decode("utf-8") if socks5.description else ""
+                    socks5.id, "Yes" if socks5.operational else "No", socks5.host, socks5.port,
+                    socks5.country, socks5.country_code, socks5.city,
+                    socks5.username if socks5.username else "", socks5.password if socks5.password else "",
+                    socks5.description if socks5.description else ""
                 )
-            ))
+            )
 
         sys.exit(0)
 
