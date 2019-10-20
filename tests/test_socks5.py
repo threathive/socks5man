@@ -219,15 +219,15 @@ class TestSocks5(object):
         s = self.db.view_socks5(1)
         socks5 = Socks5(s)
         d = socks5.to_dict()
-        assert d["host"] == "example.com"
+        assert d["host"] == b"example.com"
         assert d["port"] == 1337
-        assert d["country"] == "germany"
-        assert d["country_code"] == "DE"
-        assert d["city"] == "Frankfurt"
+        assert d["country"] == b"germany"
+        assert d["country_code"] == b"DE"
+        assert d["city"] == b"Frankfurt"
         assert not d["operational"]
-        assert d["username"] == "doge"
-        assert d["password"] == "wow"
-        assert d["description"] == "Such wow, many socks5"
+        assert d["username"] == b"doge"
+        assert d["password"] == b"wow"
+        assert d["description"] == b"Such wow, many socks5"
         assert d["added_on"] == socks5.added_on.strftime("%Y-%m-%d %H:%M:%S")
 
     def test_repr(self):
@@ -238,7 +238,7 @@ class TestSocks5(object):
         )
         s = self.db.view_socks5(1)
         socks5 = Socks5(s)
-        assert repr(socks5) == "<Socks5(host='example.com', port=1337, country='germany', authenticated=True)>"
+        assert repr(socks5) == "<Socks5(host=example.com, port=1337, country=germany, authenticated=True)>"
 
     def test_repr_nonauth(self):
         self.db.add_socks5(
@@ -248,10 +248,11 @@ class TestSocks5(object):
         )
         s = self.db.view_socks5(1)
         socks5 = Socks5(s)
-        assert repr(socks5) == "<Socks5(host='example.com', port=1337, country='germany', authenticated=False)>"
+        assert repr(socks5) == "<Socks5(host=example.com, port=1337, country=germany, authenticated=False)>"
 
     def test_win_imported_win_inet_pton(self):
         if sys.platform == "win32":
             assert "win_inet_pton" in sys.modules
         else:
             assert "win_inet_pton" not in sys.modules
+

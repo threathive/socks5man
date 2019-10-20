@@ -32,14 +32,14 @@ def verify_all(repeated=False, operational=None, unverified=None):
             socks5 = Socks5(socks5)
 
             log.info(
-                "Testing socks5 server: '%s:%s'", socks5.host.decode("utf-8"), socks5.port
+                "Testing socks5 server: '%s:%s'", socks5.host, socks5.port
             )
             if socks5.verify():
                 log.info("Operationality check: OK")
             else:
                 log.warning(
                     "Operationality check (%s:%s): FAILED",
-                    socks5.host.decode("utf-8"), socks5.port
+                    socks5.host, socks5.port
                 )
                 continue
 

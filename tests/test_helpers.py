@@ -153,7 +153,7 @@ def test_get_over_socks5(ms, mu, mss):
     )
     mu.assert_called_once_with("http://example.com", timeout=10)
     assert res == "many content, such wow"
-    assert mss.socket == "socket"
+    assert mss.socket == "DOGE"
 
 @mock.patch("socks5man.helpers.socket")
 @mock.patch("urllib.request.urlopen")
@@ -170,7 +170,7 @@ def test_get_over_socks5_fail(ms, mu, mss):
         password="doge", timeout=10
     )
     assert res is None
-    assert mss.socket == "socket"
+    assert mss.socket == "DOGE"
 
 @mock.patch("time.time")
 @mock.patch("socks5man.helpers.cfg")
@@ -267,3 +267,4 @@ def test_approximate_bandwidth_failed(mg, mc, mt):
         times=2, maxfail=1
     )
     assert speed is None
+
