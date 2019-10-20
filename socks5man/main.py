@@ -65,7 +65,8 @@ def verify(repeated, operational, non_operational, unverified):
 @click.option("-u", "--username", help="Username for this socks5 server")
 @click.option("-p", "--password", help="Password for this socks5 server")
 @click.option("-d", "--description", help="Description for this socks5 server")
-def add(host, port, username, password, description):
+@click.option("-pi", "--private", is_flag=True, help="Private server ip")
+def add(host, port, username, password, description, private):
     """Add socks5 server."""
     if username and not password or password and not username:
         log.warning(
@@ -77,7 +78,7 @@ def add(host, port, username, password, description):
     try:
         entry = m.add(
             host, port, username=username, password=password,
-            description=description
+            description=description, private=private
         )
     except Socks5manError as e:
         log.error("Failed to add socks5 server: %s", e)

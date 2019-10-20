@@ -53,13 +53,13 @@ class Socks5(object):
             return operational
 
         if response:
-            if ip == response:
+            if ip == response.decode("utf-8"):
                 operational = True
 
             # If a private ip is used, the api response will not match with
             # the configured host or its ip. There was however a response,
             # therefore we still mark it as operational
-            elif is_reserved_ipv4(ip) and is_ipv4(response):
+            elif self.private or (is_reserved_ipv4(ip) and is_ipv4(response)):
                 operational = True
 
         db.set_operational(self.id, operational)
@@ -272,6 +272,16 @@ class Socks5(object):
         if self.db_socks5.description:
             return self.db_socks5.description
         return None
+
+    @property
+    def private(self):
+        """
+        Boolean that tells if the server is private ip.
+
+        :rtype: bool
+        """
+        return self.db_socks5.private
+
 
     def __repr__(self):
         return "<Socks5(host=%s, port=%s, country=%s, authenticated=%s)>" % (

@@ -46,12 +46,14 @@ class Socks5(Base):
     connect_time = Column(Float(), nullable=True)
     description = Column(Text(), nullable=True)
     dnsport = Column(Integer(), nullable=True)
+    private = Column(Boolean, nullable=True)
 
-    def __init__(self, host, port, country, country_code):
+    def __init__(self, host, port, country, country_code, private):
         self.host = host
         self.port = port
         self.country = country
         self.country_code = country_code
+        self.private = private
 
     def to_dict(self):
         """Converts object to dict.
@@ -116,9 +118,9 @@ class Database(object, metaclass=Singleton):
             ses.close()
 
     def add_socks5(self, host, port, country, country_code, operational=False,
-                   city=None, username=None, password=None, dnsport=None, description=None):
+                   city=None, username=None, password=None, dnsport=None, description=None, private=False):
         """Add new socks5 server to the database"""
-        socks5 = Socks5(host, port, country, country_code)
+        socks5 = Socks5(host, port, country, country_code, private)
         socks5.operational = operational
         socks5.city = city
         socks5.username = username
