@@ -30,7 +30,7 @@ setup(
     ],
     license="GPLv3",
     description="SOCKS5 server management tool and library",
-    long_description=open("README.rst", "r").read(),
+    long_description=open("README.md", "r").read(),
     include_package_data=True,
     url="https://github.com/RicoVZ/socks5man",
     install_requires=[r.strip() for r in open("requirements.txt", "r").readlines()],
